@@ -327,9 +327,27 @@ input.addEventListener("keydown", function(e) {
                 <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
 
                 <div class="file-grid">
-                ${Object<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}"><div class="file-icon"></div>> ${name}</div>`;
+                ${Object.keys(fileData).map(name => {
+                    const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
+                    return `
+                        <div class="file-item ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')">
+                            <div class="file-icon"></div>
+                            <div class="file-name">${name}</div>
+                        </div>
+                    `;
                 }).join("")}
-            ;
+                </div>
+            `;
+                        <div class="file-item ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')">
+                            <div class="file-icon"></div>
+                            <div class="file-name">${name}</div>
+                        </div>
+                    `;
+                }).join("")}
+                </div>
+            `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}"><div class="file-icon"></div>> ${name}</div>`;
+                }).join("")}
+            `;
             return;
         }
 
