@@ -15,6 +15,10 @@ body {
     background: black;
     font-family: 'VCR', monospace;
     overflow: hidden;
+
+    /* 🔥 масштаб всего интерфейса */
+    transform: scale(1.2);
+    transform-origin: top left;
 }
 
 /* CRT */
@@ -53,7 +57,7 @@ body::after {
 .line {
     position: relative;
     color: white;
-    font-size: 18px;
+    font-size: 22px; /* 🔥 увеличен */
     cursor: pointer;
 }
 
@@ -64,7 +68,7 @@ body::after {
     top: 0;
     color: red;
     opacity: 0.3;
-    transform: translate(2px, 0);
+    transform: translate(3px, 0);
 }
 
 .line::after {
@@ -74,7 +78,7 @@ body::after {
     top: 0;
     color: cyan;
     opacity: 0.3;
-    transform: translate(-2px, 0);
+    transform: translate(-3px, 0);
 }
 
 .input-line {
@@ -86,6 +90,7 @@ input {
     border: none;
     color: white;
     font-family: inherit;
+    font-size: 22px; /* 🔥 увеличен */
     outline: none;
     width: 100%;
 }
@@ -108,7 +113,7 @@ input {
     margin-bottom: 20px;
     border: 1px solid red;
     display: inline-block;
-    padding: 5px 10px;
+    padding: 8px 14px; /* 🔥 увеличен */
     cursor: pointer;
 }
 
@@ -134,7 +139,7 @@ img {
     background: black;
     color: white;
     border: 1px solid red;
-    padding: 10px;
+    padding: 12px; /* 🔥 увеличен */
     cursor: pointer;
     z-index: 10;
 }
@@ -146,7 +151,7 @@ img {
     inset: 0;
     padding: 20px;
     color: red;
-    font-size: 18px;
+    font-size: 22px; /* 🔥 увеличен */
     overflow: hidden;
     white-space: pre-wrap;
     word-break: break-word;
