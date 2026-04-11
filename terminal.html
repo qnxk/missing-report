@@ -57,13 +57,54 @@ body::after {
     gap: 10px;
 }
 
-/* FILE ICON */
+/* FILE GRID */
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.file-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* FILE ICON BIG */
 .file-icon {
-    width: 18px;
-    height: 18px;
+    width: 80px;
+    height: 80px;
     background: url('file.png') no-repeat center/contain;
     position: relative;
 }
+
+.file-icon::before,
+.file-icon::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('file.png') no-repeat center/contain;
+    opacity: 0.4;
+}
+
+.file-icon::before {
+    transform: translate(2px, 0);
+    filter: hue-rotate(0deg) brightness(1.2);
+}
+
+.file-icon::after {
+    transform: translate(-2px, 0);
+    filter: hue-rotate(180deg) brightness(1.2);
+}
+
+.file-name {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
+}
+
 
 .file-icon::before,
 .file-icon::after {
@@ -284,10 +325,9 @@ input.addEventListener("keydown", function(e) {
                 <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
                 <br>
                 <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
-                <br>
-                ${Object.keys(fileData).map(name => {
-                    const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
-                    return `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}"><div class="file-icon"></div>> ${name}</div>`;
+
+                <div class="file-grid">
+                ${Object<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}"><div class="file-icon"></div>> ${name}</div>`;
                 }).join("")}
             `;
             return;
