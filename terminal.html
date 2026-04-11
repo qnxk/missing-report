@@ -49,6 +49,7 @@ body::before {
     position: relative;
     color: white;
     font-size: 18px;
+    cursor: pointer;
 }
 
 .line::before {
@@ -89,10 +90,14 @@ input {
 }
 
 /* FILES */
-#files {
+#files, #fileViewer {
     display: none;
     padding: 20px;
     color: white;
+}
+
+#fileViewer pre {
+    white-space: pre-wrap;
 }
 
 /* GIF */
@@ -120,6 +125,15 @@ img {
     padding: 10px;
     cursor: pointer;
     z-index: 10;
+}
+
+/* BACK BUTTON */
+#backBtn {
+    margin-bottom: 20px;
+    border: 1px solid red;
+    padding: 5px;
+    display: inline-block;
+    cursor: pointer;
 }
 
 /* CANNONFODDER */
@@ -150,9 +164,14 @@ img {
 
 <div id="files"></div>
 
+<div id="fileViewer">
+    <div id="backBtn" onclick="closeFile()">← BACK</div>
+    <pre id="fileContent"></pre>
+</div>
+
 <div id="videoContainer">
     <button id="exitBtn" onclick="exitVideo()">EXIT</button>
-    <img id="gif" src="Sim_01.gif">
+    <img src="Sim_01.gif">
 </div>
 
 <div id="rain"></div>
@@ -162,6 +181,36 @@ const output = document.getElementById("output");
 const input = document.getElementById("input");
 
 let attempts = 0;
+
+/* FILE CONTENTS */
+const fileData = {
+    "kindness.txt": `KINDNESS MODULE v1.2
+
+Status: CORRUPTED
+
+> they told us to be kind
+> we tried
+> it didn't work
+
+ERROR: emotional overflow detected`,
+
+    "uriel.log": `URIEL SYSTEM LOG
+
+[ENTRY 01] signal received
+[ENTRY 02] subject responding
+[ENTRY 03] anomaly detected
+[ENTRY 04] containment failed
+
+...log truncated...`,
+
+    "patience.txt": `PATIENCE PROTOCOL
+
+please wait...
+please wait...
+please wait...
+
+why are you still here?`
+};
 
 /* typing */
 function typeLine(text, delay = 15) {
@@ -215,11 +264,12 @@ input.addEventListener("keydown", function(e) {
             files.style.display = "block";
 
             files.innerHTML = `
-                <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
-                <br>
-                <div class="line" data-text="> system_logs.txt">> system_logs.txt</div>
-                <div class="line" data-text="> subject_data.bin">> subject_data.bin</div>
-                <div class="line" data-text="> recovery_protocol.exe">> recovery_protocol.exe</div>
+                <div class="line" onclick="openFile('kindness.txt')" data-text="> kindness.txt">> kindness.txt</div>
+                <div class="line" onclick="openFile('uriel.log')" data-text="> uriel.log">> uriel.log</div>
+                <div class="line" onclick="openFile('patience.txt')" data-text="> patience.txt">> patience.txt</div>
+                <div class="line" data-text="> subject_01.data">> subject_01.data</div>
+                <div class="line" data-text="> last_signal.wav">> last_signal.wav</div>
+                <div class="line" data-text="> DO_NOT_OPEN.txt">> DO_NOT_OPEN.txt</div>
             `;
             return;
         }
@@ -232,6 +282,19 @@ input.addEventListener("keydown", function(e) {
         }
     }
 });
+
+/* FILE OPEN */
+function openFile(name) {
+    document.getElementById("files").style.display = "none";
+    document.getElementById("fileViewer").style.display = "block";
+
+    document.getElementById("fileContent").textContent = fileData[name] || "FILE CORRUPTED";
+}
+
+function closeFile() {
+    document.getElementById("fileViewer").style.display = "none";
+    document.getElementById("files").style.display = "block";
+}
 
 /* exit gif */
 function exitVideo() {
