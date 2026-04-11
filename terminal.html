@@ -315,14 +315,32 @@ function startRain() {
         rain.innerText = fullText;
 
         if (fullText.length > 20000) {
+
             setTimeout(() => {
-                window.open("", "_self");
+
+                // попытка закрытия
+                window.open('', '_self');
                 window.close();
+
+                // fallback 1 — очистка страницы
                 document.body.innerHTML = "";
                 document.body.style.background = "black";
-                document.title = "";
+
+                // fallback 2 — переход в пустоту
+                setTimeout(() => {
+                    location.href = "about:blank";
+                }, 200);
+
             }, 1000);
+
             return;
+        }
+
+        setTimeout(flood, 20);
+    }
+
+    flood();
+}
         }
 
         setTimeout(flood, 20);
