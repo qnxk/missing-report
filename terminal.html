@@ -52,10 +52,21 @@ body::after {
     color: white;
     font-size: 18px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
 }
+
+/* FILE ITEM */
+.file-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.file-item.selected {
+    border: 1px solid white;
+}
+
 
 /* FILE GRID */
 .file-grid {
@@ -330,7 +341,7 @@ input.addEventListener("keydown", function(e) {
                 ${Object.keys(fileData).map(name => {
                     const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
                     return `
-                        <div class="file-item ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')">
+                        <div class="file-item ${isNew ? 'red-file' : ''}" onclick="selectFile(this); openFile('${name}')"> ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')">
                             <div class="file-icon"></div>
                             <div class="file-name">${name}</div>
                         </div>
@@ -359,6 +370,11 @@ input.addEventListener("keydown", function(e) {
         }
     }
 });
+
+function selectFile(el) {
+    document.querySelectorAll('.file-item').forEach(f => f.classList.remove('selected'));
+    el.classList.add('selected');
+}
 
 function openFile(name) {
     document.getElementById("files").style.display = "none";
