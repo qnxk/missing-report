@@ -90,14 +90,25 @@ input {
 }
 
 /* FILES */
-#files, #fileViewer {
+#files {
     display: none;
     padding: 20px;
     color: white;
 }
 
-#fileViewer pre {
-    white-space: pre-wrap;
+/* FILE VIEW */
+#fileViewer {
+    display: none;
+    padding: 20px;
+    color: white;
+}
+
+#backBtn {
+    margin-bottom: 20px;
+    border: 1px solid red;
+    display: inline-block;
+    padding: 5px 10px;
+    cursor: pointer;
 }
 
 /* GIF */
@@ -125,15 +136,6 @@ img {
     padding: 10px;
     cursor: pointer;
     z-index: 10;
-}
-
-/* BACK BUTTON */
-#backBtn {
-    margin-bottom: 20px;
-    border: 1px solid red;
-    padding: 5px;
-    display: inline-block;
-    cursor: pointer;
 }
 
 /* CANNONFODDER */
@@ -165,8 +167,8 @@ img {
 <div id="files"></div>
 
 <div id="fileViewer">
-    <div id="backBtn" onclick="closeFile()">← BACK</div>
-    <pre id="fileContent"></pre>
+    <div id="backBtn" onclick="backToFiles()">[BACK]</div>
+    <div id="fileContent"></div>
 </div>
 
 <div id="videoContainer">
@@ -180,37 +182,22 @@ img {
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
-let attempts = 0;
-
-/* FILE CONTENTS */
+/* 🔥 ТЕКСТЫ ФАЙЛОВ (РЕДАКТИРУЙ ТУТ) */
 const fileData = {
-    "kindness.txt": `KINDNESS MODULE v1.2
-
-Status: CORRUPTED
-
-> they told us to be kind
-> we tried
-> it didn't work
-
-ERROR: emotional overflow detected`,
-
-    "uriel.log": `URIEL SYSTEM LOG
-
-[ENTRY 01] signal received
-[ENTRY 02] subject responding
-[ENTRY 03] anomaly detected
-[ENTRY 04] containment failed
-
-...log truncated...`,
-
-    "patience.txt": `PATIENCE PROTOCOL
-
-please wait...
-please wait...
-please wait...
-
-why are you still here?`
+    "kindness.txt": "KINDNESS MODULE INITIALIZED...\n\nSubject shows emotional instability.\nResponse pattern: inconsistent.\nRecommendation: observe further.",
+    
+    "uriel.log": "[LOG 01]\nSignal received.\nSource unknown.\n\n[LOG 02]\nVoice detected.\n'He is still alive.'\n\n[LOG 03]\nConnection lost.",
+    
+    "patience.txt": "PATIENCE PROTOCOL ACTIVE...\n\nWaiting...\nWaiting...\nWaiting...\n\nNo response detected.",
+    
+    "subject_01.data": "SUBJECT ID: 01\nStatus: ACTIVE\nCondition: UNKNOWN",
+    
+    "last_signal.wav": "ERROR: Cannot decode audio.\nFragments corrupted.",
+    
+    "DO_NOT_OPEN.txt": "Why did you open this?\n\nIt was not meant for you."
 };
+
+let attempts = 0;
 
 /* typing */
 function typeLine(text, delay = 15) {
@@ -264,12 +251,11 @@ input.addEventListener("keydown", function(e) {
             files.style.display = "block";
 
             files.innerHTML = `
-                <div class="line" onclick="openFile('kindness.txt')" data-text="> kindness.txt">> kindness.txt</div>
-                <div class="line" onclick="openFile('uriel.log')" data-text="> uriel.log">> uriel.log</div>
-                <div class="line" onclick="openFile('patience.txt')" data-text="> patience.txt">> patience.txt</div>
-                <div class="line" data-text="> subject_01.data">> subject_01.data</div>
-                <div class="line" data-text="> last_signal.wav">> last_signal.wav</div>
-                <div class="line" data-text="> DO_NOT_OPEN.txt">> DO_NOT_OPEN.txt</div>
+                <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+                <br>
+                ${Object.keys(fileData).map(name => 
+                    `<div class="line" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`
+                ).join("")}
             `;
             return;
         }
@@ -283,15 +269,18 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
-/* FILE OPEN */
+/* открыть файл */
 function openFile(name) {
     document.getElementById("files").style.display = "none";
     document.getElementById("fileViewer").style.display = "block";
 
-    document.getElementById("fileContent").textContent = fileData[name] || "FILE CORRUPTED";
+    const content = fileData[name] || "EMPTY FILE";
+
+    document.getElementById("fileContent").innerText = content;
 }
 
-function closeFile() {
+/* назад */
+function backToFiles() {
     document.getElementById("fileViewer").style.display = "none";
     document.getElementById("files").style.display = "block";
 }
@@ -302,7 +291,7 @@ function exitVideo() {
     document.getElementById("terminal").style.display = "block";
 }
 
-/* CANNONFODDER эффект */
+/* CANNONFODDER */
 function startRain() {
     const rain = document.getElementById("rain");
     rain.style.display = "block";
