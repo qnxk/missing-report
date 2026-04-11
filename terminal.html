@@ -144,7 +144,6 @@ img {
     word-break: break-word;
 }
 
-/* NEW FILE COLOR */
 .red-file {
     color: #ff0000;
 }
@@ -187,8 +186,6 @@ const fileData = {
     "subject_01.data": "SUBJECT ID: 01\nStatus: ACTIVE",
     "last_signal.wav": "ERROR: Cannot decode audio.",
     "DO_NOT_OPEN.txt": "Why did you open this?",
-
-    /* NEW FILES */
     "The Deadman": "unidentified1",
     "osiris": "breached containment",
     "The Greed": "unidentified2",
@@ -226,7 +223,6 @@ input.addEventListener("keydown", function(e) {
 
         typeLine("> " + value);
 
-        /* SEQUENCE TEST CODES */
         if (["THEFLAWEDVIRTUE","ENDOSCOPY","COMMANDER"].includes(value)) {
             for (let i = 1; i <= 5; i++) {
                 typeLine("test" + i);
@@ -307,7 +303,8 @@ function logout() {
     document.getElementById("terminal").style.display = "block";
 }
 
-function startRain() {
+/* ТВОЯ ВСТАВЛЕННАЯ ФУНКЦИЯ */
+function startRain() { 
     const rain = document.getElementById("rain");
     rain.style.display = "block";
 
@@ -320,7 +317,11 @@ function startRain() {
 
         if (fullText.length > 20000) {
             setTimeout(() => {
-                location.href = "about:blank";
+                window.open("", "_self");
+                window.close();
+                document.body.innerHTML = "";
+                document.body.style.background = "black";
+                document.title = "";
             }, 1000);
             return;
         }
