@@ -5,8 +5,6 @@
 <title>system</title>
 
 <style>
-
-/* 🔤 ШРИФТ */
 @font-face {
     font-family: 'VCR';
     src: url('VCR_OSD_MONO.ttf');
@@ -19,7 +17,6 @@ body {
     overflow: hidden;
 }
 
-/* 📺 CRT */
 body::after {
     content: "";
     position: fixed;
@@ -33,7 +30,6 @@ body::after {
     pointer-events: none;
 }
 
-/* 🌀 FISHEYE */
 body::before {
     content: "";
     position: fixed;
@@ -46,14 +42,12 @@ body::before {
     pointer-events: none;
 }
 
-/* 💡 TEXT LAYERS */
 .line {
     position: relative;
     color: white;
     font-size: 18px;
 }
 
-/* нижний слой (цветовой глитч) */
 .line::before {
     content: attr(data-text);
     position: absolute;
@@ -91,7 +85,6 @@ input {
     width: 100%;
 }
 
-/* 📂 FILES */
 #files {
     display: none;
     padding: 20px;
@@ -111,7 +104,6 @@ input {
     margin-top: 20px;
 }
 
-/* 🎥 VIDEO */
 #videoContainer {
     display: none;
     position: fixed;
@@ -125,7 +117,6 @@ video {
     object-fit: cover;
 }
 
-/* 💀 LOOP TEXT */
 #loopText {
     display: none;
     position: absolute;
@@ -144,7 +135,6 @@ video {
     from { transform: translateX(100%); }
     to { transform: translateX(-100%); }
 }
-
 </style>
 </head>
 
@@ -182,7 +172,6 @@ const input = document.getElementById("input");
 
 let attempts = 0;
 
-/* ✍️ ПЕЧАТЬ */
 function typeLine(text, delay = 20) {
     return new Promise(resolve => {
         let i = 0;
@@ -256,7 +245,6 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
-/* 📂 FILES */
 function openFile(name) {
     const viewer = document.getElementById("viewer");
 
