@@ -146,7 +146,7 @@ img {
 
 /* NEW FILE COLOR */
 .red-file {
-    color: #8b0000;
+    color: #ff0000;
 }
 </style>
 </head>
@@ -255,6 +255,8 @@ input.addEventListener("keydown", function(e) {
             files.innerHTML = `
                 <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
                 <br>
+                <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
+                <br>
                 ${Object.keys(fileData).map(name => {
                     const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
                     return `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
@@ -297,6 +299,11 @@ function backToFiles() {
 
 function exitVideo() {
     document.getElementById("videoContainer").style.display = "none";
+    document.getElementById("terminal").style.display = "block";
+}
+
+function logout() {
+    document.getElementById("files").style.display = "none";
     document.getElementById("terminal").style.display = "block";
 }
 
