@@ -1,261 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>system</title>
-
-<style>
-@font-face {
-    font-family: 'VCR';
-    src: url('VCR_OSD_MONO.ttf');
-}
-
-body {
-    margin: 0;
-    background: black;
-    font-family: 'VCR', monospace;
-    overflow: hidden;
-}
-
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.08),
-        rgba(255,255,255,0.08) 2px,
-        rgba(0,0,0,0) 4px
-    );
-    pointer-events: none;
-}
-
-#terminal {
-    padding: 20px;
-    position: relative;
-}
-
-#terminal::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-        circle at center,
-        transparent 40%,
-        rgba(0,0,0,0.7) 100%
-    );
-    pointer-events: none;
-}
-
-.line {
-    position: relative;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-/* FILE ITEM */
-.file-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.file-item.selected {
-    border: 1px solid white;
-}
-
-
-/* FILE GRID */
-.file-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 30px;
-    margin-top: 20px;
-}
-
-.file-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-}
-
-/* FILE ICON BIG */
-.file-icon {
-    width: 80px;
-    height: 80px;
-    background: url('file.png') no-repeat center/contain;
-    position: relative;
-}
-
-.file-icon::before,
-.file-icon::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url('file.png') no-repeat center/contain;
-    opacity: 0.4;
-}
-
-.file-icon::before {
-    transform: translate(2px, 0);
-    filter: hue-rotate(0deg) brightness(1.2);
-}
-
-.file-icon::after {
-    transform: translate(-2px, 0);
-    filter: hue-rotate(180deg) brightness(1.2);
-}
-
-.file-name {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 16px;
-}
-
-
-.file-icon::before,
-.file-icon::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url('file.png') no-repeat center/contain;
-    opacity: 0.4;
-}
-
-.file-icon::before {
-    transform: translate(1px, 0);
-}
-
-.file-icon::after {
-    transform: translate(-1px, 0);
-}
-
-.line::before {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: red;
-    opacity: 0.3;
-    transform: translate(2px, 0);
-}
-
-.line::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: cyan;
-    opacity: 0.3;
-    transform: translate(-2px, 0);
-}
-
-.input-line {
-    display: flex;
-}
-
-input {
-    background: black;
-    border: none;
-    color: white;
-    font-family: inherit;
-    outline: none;
-    width: 100%;
-}
-
-#files {
-    display: none;
-    padding: 20px;
-    color: white;
-}
-
-#fileViewer {
-    display: none;
-    padding: 20px;
-    color: white;
-}
-
-#backBtn {
-    margin-bottom: 20px;
-    border: 1px solid red;
-    display: inline-block;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-#videoContainer {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: black;
-}
-
-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-#exitBtn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: black;
-    color: white;
-    border: 1px solid red;
-    padding: 10px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-#rain {
-    display: none;
-    position: fixed;
-    inset: 0;
-    padding: 20px;
-    color: red;
-    font-size: 18px;
-    overflow: hidden;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-/* NEW FILE COLOR */
-.red-file {
-    color: #ff0000;
-}
-</style>
-</head>
-
-<body>
-
-<div id="terminal">
-    <div id="output"></div>
-
-    <div class="input-line">
-        <span class="line" data-text="> ">> </span>
-        <input id="input" autofocus>
-    </div>
-</div>
-
-<div id="files"></div>
-
-<div id="fileViewer">
-    <div id="backBtn" onclick="backToFiles()">[BACK]</div>
-    <div id="fileContent"></div>
-</div>
-
-<div id="videoContainer">
-    <button id="exitBtn" onclick="exitVideo()">EXIT</button>
-    <img src="Sim_01.gif?t=<?=Date.now()?>">
-</div>
-
-<div id="rain"></div>
-
 <script>
 const output = document.getElementById("output");
 const input = document.getElementById("input");
@@ -268,7 +10,6 @@ const fileData = {
     "last_signal.wav": "ERROR: Cannot decode audio.",
     "DO_NOT_OPEN.txt": "Why did you open this?",
 
-    /* NEW FILES */
     "The Deadman": "unidentified1",
     "osiris": "breached containment",
     "The Greed": "unidentified2",
@@ -297,6 +38,7 @@ function typeLine(text, delay = 15) {
     });
 }
 
+// ✅ теперь точно выполняется
 typeLine("ENTER CODE:");
 
 input.addEventListener("keydown", function(e) {
@@ -306,7 +48,6 @@ input.addEventListener("keydown", function(e) {
 
         typeLine("> " + value);
 
-        /* SEQUENCE TEST CODES */
         if (["THEFLAWEDVIRTUE","ENDOSCOPY","COMMANDER"].includes(value)) {
             for (let i = 1; i <= 5; i++) {
                 typeLine("test" + i);
@@ -333,31 +74,22 @@ input.addEventListener("keydown", function(e) {
             files.style.display = "block";
 
             files.innerHTML = `
-                <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+                <div class="line">ACCESS GRANTED</div>
                 <br>
-                <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
+                <div id="logoutBtn" class="line" onclick="logout()">[LOGOUT]</div>
 
                 <div class="file-grid">
-                ${Object.keys(fileData).map(name => {
-                    const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
-                    return `
-                        <div class="file-item ${isNew ? 'red-file' : ''}" onclick="selectFile(this); openFile('${name}')"> ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')">
-                            <div class="file-icon"></div>
-                            <div class="file-name">${name}</div>
-                        </div>
-                    `;
-                }).join("")}
+                    ${Object.keys(fileData).map(name => {
+                        const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
+
+                        return `
+                            <div class="file-item ${isNew ? 'red-file' : ''}" onclick="selectFile(this); openFile('${name}')">
+                                <div class="file-icon"></div>
+                                <div class="file-name">${name}</div>
+                            </div>
+                        `;
+                    }).join("")}
                 </div>
-            `;
-                        <div class="file-item ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')">
-                            <div class="file-icon"></div>
-                            <div class="file-name">${name}</div>
-                        </div>
-                    `;
-                }).join("")}
-                </div>
-            `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}"><div class="file-icon"></div>> ${name}</div>`;
-                }).join("")}
             `;
             return;
         }
@@ -433,6 +165,3 @@ function startRain() {
     flood();
 }
 </script>
-
-</body>
-</html>
