@@ -39,7 +39,7 @@ body::before {
     background: radial-gradient(
         circle at center,
         transparent 40%,
-        rgba(0,0,0,0.6) 100%
+        rgba(0,0,0,0.7) 100%
     );
     pointer-events: none;
 }
@@ -95,19 +95,6 @@ input {
     color: white;
 }
 
-.file {
-    cursor: pointer;
-    margin: 6px 0;
-}
-
-.file:hover {
-    color: red;
-}
-
-#viewer {
-    margin-top: 20px;
-}
-
 /* VIDEO */
 #videoContainer {
     display: none;
@@ -116,36 +103,52 @@ input {
     background: black;
 }
 
-video {
+video, img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* CANNONFODDER WATERFALL */
+/* EXIT BUTTON */
+#exitBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: black;
+    color: white;
+    border: 1px solid red;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* CANNONFODDER BACKGROUND */
 #rain {
     display: none;
     position: fixed;
     inset: 0;
+
+    /* фон без картинки */
+    background:
+        radial-gradient(circle at center, rgba(255,0,0,0.15), black 70%),
+        linear-gradient(to bottom, #111, #000);
+
     overflow: hidden;
 }
 
+/* водопад текста */
 .column {
     position: absolute;
     bottom: -100%;
     color: red;
-    font-size: 20px;
+    font-size: 22px;
     white-space: pre;
     animation: fall linear infinite;
 }
 
 @keyframes fall {
-    from {
-        transform: translateY(100%);
-    }
-    to {
-        transform: translateY(-200%);
-    }
+    from { transform: translateY(100%); }
+    to { transform: translateY(-200%); }
 }
 </style>
 </head>
@@ -161,19 +164,12 @@ video {
     </div>
 </div>
 
-<div id="files">
-    <h3>root://classified</h3>
-
-    <div class="file" onclick="openFile('patience')">Patience.txt</div>
-    <div class="file" onclick="openFile('kindness')">Kindness.txt</div>
-    <div class="file" onclick="openFile('uriel')">Uriel.txt</div>
-    <div class="file" onclick="openFile('commander')">Commander.txt</div>
-
-    <div id="viewer"></div>
-</div>
-
 <div id="videoContainer">
+    <button id="exitBtn" onclick="exitVideo()">EXIT</button>
     <video id="vid" src="Sim_01.mp4" autoplay></video>
+    <!-- если gif:
+    <img src="Sim_01.gif">
+    -->
 </div>
 
 <div id="rain"></div>
@@ -208,10 +204,7 @@ function typeLine(text, delay = 15) {
     });
 }
 
-async function init() {
-    await typeLine("ENTER CODE:");
-}
-init();
+typeLine("ENTER CODE:");
 
 input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
@@ -227,15 +220,15 @@ input.addEventListener("keydown", function(e) {
             return;
         }
 
-        if (value === "PROTOTYPEA1") {
-            document.getElementById("terminal").style.display = "none";
-            document.getElementById("files").style.display = "block";
-            return;
-        }
-
         if (value === "CANNONFODDER") {
             document.getElementById("terminal").style.display = "none";
             startRain();
+
+            setTimeout(() => {
+                window.close(); // сработает не всегда (браузер)
+                location.href = "about:blank";
+            }, 5000);
+
             return;
         }
 
@@ -248,13 +241,18 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
-/* waterfall */
+/* exit video */
+function exitVideo() {
+    document.getElementById("videoContainer").style.display = "none";
+    document.getElementById("terminal").style.display = "block";
+}
+
+/* rain */
 function startRain() {
     const rain = document.getElementById("rain");
     rain.style.display = "block";
 
     const text = "LIVE AGAIN LIVE AGAIN DIES STOP\n";
-
     const columns = Math.floor(window.innerWidth / 20);
 
     for (let i = 0; i < columns; i++) {
@@ -262,36 +260,15 @@ function startRain() {
         col.className = "column";
 
         let content = "";
-        for (let j = 0; j < 30; j++) {
+        for (let j = 0; j < 40; j++) {
             content += text;
         }
 
         col.innerText = content;
         col.style.left = (i * 20) + "px";
-        col.style.animationDuration = (Math.random() * 3 + 2) + "s";
+        col.style.animationDuration = (Math.random() * 2 + 2) + "s";
 
         rain.appendChild(col);
-    }
-}
-
-/* files */
-function openFile(name) {
-    const viewer = document.getElementById("viewer");
-
-    if (name === "patience") {
-        viewer.innerHTML = "<h4>Patience.txt</h4><p>[DATA REDACTED]</p>";
-    }
-
-    if (name === "kindness") {
-        viewer.innerHTML = "<h4>Kindness.txt</h4><p>[DATA REDACTED]</p>";
-    }
-
-    if (name === "uriel") {
-        viewer.innerHTML = "<h4>Uriel.txt</h4><p>[DATA REDACTED]</p>";
-    }
-
-    if (name === "commander") {
-        viewer.innerHTML = "<h4>Commander.txt</h4><p>[DATA REDACTED]</p>";
     }
 }
 </script>
