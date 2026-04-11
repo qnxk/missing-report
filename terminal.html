@@ -95,7 +95,7 @@ input {
     color: white;
 }
 
-/* VIDEO */
+/* GIF */
 #videoContainer {
     display: none;
     position: fixed;
@@ -103,7 +103,7 @@ input {
     background: black;
 }
 
-video, img {
+img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -122,33 +122,17 @@ video, img {
     z-index: 10;
 }
 
-/* CANNONFODDER BACKGROUND */
+/* CANNONFODDER */
 #rain {
     display: none;
     position: fixed;
     inset: 0;
-
-    /* фон без картинки */
-    background:
-        radial-gradient(circle at center, rgba(255,0,0,0.15), black 70%),
-        linear-gradient(to bottom, #111, #000);
-
-    overflow: hidden;
-}
-
-/* водопад текста */
-.column {
-    position: absolute;
-    bottom: -100%;
+    padding: 20px;
     color: red;
-    font-size: 22px;
-    white-space: pre;
-    animation: fall linear infinite;
-}
-
-@keyframes fall {
-    from { transform: translateY(100%); }
-    to { transform: translateY(-200%); }
+    font-size: 18px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 </style>
 </head>
@@ -164,12 +148,11 @@ video, img {
     </div>
 </div>
 
+<div id="files"></div>
+
 <div id="videoContainer">
     <button id="exitBtn" onclick="exitVideo()">EXIT</button>
-    <video id="vid" src="Sim_01.mp4" autoplay></video>
-    <!-- если gif:
-    <img src="Sim_01.gif">
-    -->
+    <img id="gif" src="Sim_01.gif">
 </div>
 
 <div id="rain"></div>
@@ -216,19 +199,28 @@ input.addEventListener("keydown", function(e) {
         if (value === "ABA") {
             document.getElementById("terminal").style.display = "none";
             document.getElementById("videoContainer").style.display = "block";
-            document.getElementById("vid").play();
             return;
         }
 
         if (value === "CANNONFODDER") {
             document.getElementById("terminal").style.display = "none";
             startRain();
+            return;
+        }
 
-            setTimeout(() => {
-                window.close(); // сработает не всегда (браузер)
-                location.href = "about:blank";
-            }, 5000);
+        if (value === "PROTOTYPEA1") {
+            document.getElementById("terminal").style.display = "none";
 
+            const files = document.getElementById("files");
+            files.style.display = "block";
+
+            files.innerHTML = `
+                <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+                <br>
+                <div class="line" data-text="> system_logs.txt">> system_logs.txt</div>
+                <div class="line" data-text="> subject_data.bin">> subject_data.bin</div>
+                <div class="line" data-text="> recovery_protocol.exe">> recovery_protocol.exe</div>
+            `;
             return;
         }
 
@@ -241,35 +233,35 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
-/* exit video */
+/* exit gif */
 function exitVideo() {
     document.getElementById("videoContainer").style.display = "none";
     document.getElementById("terminal").style.display = "block";
 }
 
-/* rain */
+/* CANNONFODDER эффект */
 function startRain() {
     const rain = document.getElementById("rain");
     rain.style.display = "block";
 
-    const text = "LIVE AGAIN LIVE AGAIN DIES STOP\n";
-    const columns = Math.floor(window.innerWidth / 20);
+    let text = "LIVE AGAIN LIVE AGAIN DIES STOP ";
+    let fullText = "";
 
-    for (let i = 0; i < columns; i++) {
-        const col = document.createElement("div");
-        col.className = "column";
+    function flood() {
+        fullText += text.repeat(10);
+        rain.innerText = fullText;
 
-        let content = "";
-        for (let j = 0; j < 40; j++) {
-            content += text;
+        if (fullText.length > 20000) {
+            setTimeout(() => {
+                location.href = "about:blank";
+            }, 1000);
+            return;
         }
 
-        col.innerText = content;
-        col.style.left = (i * 20) + "px";
-        col.style.animationDuration = (Math.random() * 2 + 2) + "s";
-
-        rain.appendChild(col);
+        setTimeout(flood, 20);
     }
+
+    flood();
 }
 </script>
 
