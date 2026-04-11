@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>system.exe</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #e74c3c;
+    font-family: monospace;
+}
+
+#terminal {
+    padding: 20px;
+}
+
+.input-line {
+    display: flex;
+}
+
+input {
+    background: black;
+    border: none;
+    color: #e74c3c;
+    font-family: monospace;
+    outline: none;
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+/* файловая система */
+#files {
+    display: none;
+    padding: 20px;
+}
+
+.file {
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+.file:hover {
+    color: white;
+}
+
+#viewer {
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="terminal">
+    <div id="output"></div>
+
+    <div class="input-line">
+        <span>> </span>
+        <input id="input" autofocus>
+    </div>
+</div>
+
+<div id="files">
+    <h3>root://classified</h3>
+
+    <div class="file" onclick="openFile('file1')">subject.txt</div>
+    <div class="file" onclick="openFile('file2')">image.png</div>
+
+    <div id="viewer"></div>
+</div>
+
+<script>
+const output = document.getElementById("output");
+const input = document.getElementById("input");
+
+let stage = 0;
+
+function print(text) {
+    output.innerHTML += text + "<br>";
+}
+
+print("Initializing system...");
+print("Access restricted.");
+print("Enter access code:");
+
+input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        const value = input.value;
+        input.value = "";
+
+        print("> " + value);
+
+        if (stage === 0) {
+            if (value === "ABATEST") {
+                print("Access granted.");
+                setTimeout(() => {
+                    document.getElementById("terminal").style.display = "none";
+                    document.getElementById("files").style.display = "block";
+                }, 500);
+            } else {
+                print("Access denied.");
+            }
+        }
+    }
+});
+
+function openFile(name) {
+    const viewer = document.getElementById("viewer");
+
+    if (name === "file1") {
+        viewer.innerHTML = `
+            <h4>subject.txt</h4>
+            <p>Subject is no longer human.</p>
+        `;
+    }
+
+    if (name === "file2") {
+        viewer.innerHTML = `
+            <h4>image.png</h4>
+            <img src="poster.png" width="300">
+        `;
+    }
+}
+</script>
+
+</body>
+</html>
