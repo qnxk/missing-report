@@ -17,6 +17,7 @@ body {
     overflow: hidden;
 }
 
+/* CRT */
 body::after {
     content: "";
     position: fixed;
@@ -30,6 +31,7 @@ body::after {
     pointer-events: none;
 }
 
+/* FISHEYE */
 body::before {
     content: "";
     position: fixed;
@@ -42,6 +44,7 @@ body::before {
     pointer-events: none;
 }
 
+/* TEXT */
 .line {
     position: relative;
     color: white;
@@ -85,6 +88,7 @@ input {
     width: 100%;
 }
 
+/* FILES */
 #files {
     display: none;
     padding: 20px;
@@ -104,6 +108,7 @@ input {
     margin-top: 20px;
 }
 
+/* VIDEO */
 #videoContainer {
     display: none;
     position: fixed;
@@ -117,23 +122,30 @@ video {
     object-fit: cover;
 }
 
-#loopText {
+/* CANNONFODDER WATERFALL */
+#rain {
     display: none;
-    position: absolute;
+    position: fixed;
     inset: 0;
-    font-size: 60px;
-    white-space: nowrap;
     overflow: hidden;
-    color: white;
 }
 
-.marquee {
-    animation: scroll 3s linear infinite;
+.column {
+    position: absolute;
+    bottom: -100%;
+    color: red;
+    font-size: 20px;
+    white-space: pre;
+    animation: fall linear infinite;
 }
 
-@keyframes scroll {
-    from { transform: translateX(100%); }
-    to { transform: translateX(-100%); }
+@keyframes fall {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(-200%);
+    }
 }
 </style>
 </head>
@@ -164,7 +176,7 @@ video {
     <video id="vid" src="Sim_01.mp4" autoplay></video>
 </div>
 
-<div id="loopText"></div>
+<div id="rain"></div>
 
 <script>
 const output = document.getElementById("output");
@@ -172,7 +184,8 @@ const input = document.getElementById("input");
 
 let attempts = 0;
 
-function typeLine(text, delay = 20) {
+/* typing */
+function typeLine(text, delay = 15) {
     return new Promise(resolve => {
         let i = 0;
 
@@ -198,12 +211,11 @@ function typeLine(text, delay = 20) {
 async function init() {
     await typeLine("ENTER CODE:");
 }
-
 init();
 
 input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
-        const value = input.value;
+        let value = input.value.trim().toUpperCase();
         input.value = "";
 
         typeLine("> " + value);
@@ -223,16 +235,7 @@ input.addEventListener("keydown", function(e) {
 
         if (value === "CANNONFODDER") {
             document.getElementById("terminal").style.display = "none";
-
-            const loop = document.getElementById("loopText");
-            loop.style.display = "block";
-
-            for (let i = 0; i < 20; i++) {
-                const line = document.createElement("div");
-                line.className = "marquee";
-                line.innerText = "LIVE AGAIN LIVE AGAIN DIES STOP";
-                loop.appendChild(line);
-            }
+            startRain();
             return;
         }
 
@@ -245,6 +248,33 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
+/* waterfall */
+function startRain() {
+    const rain = document.getElementById("rain");
+    rain.style.display = "block";
+
+    const text = "LIVE AGAIN LIVE AGAIN DIES STOP\n";
+
+    const columns = Math.floor(window.innerWidth / 20);
+
+    for (let i = 0; i < columns; i++) {
+        const col = document.createElement("div");
+        col.className = "column";
+
+        let content = "";
+        for (let j = 0; j < 30; j++) {
+            content += text;
+        }
+
+        col.innerText = content;
+        col.style.left = (i * 20) + "px";
+        col.style.animationDuration = (Math.random() * 3 + 2) + "s";
+
+        rain.appendChild(col);
+    }
+}
+
+/* files */
 function openFile(name) {
     const viewer = document.getElementById("viewer");
 
