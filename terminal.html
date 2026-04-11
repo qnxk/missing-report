@@ -2,14 +2,64 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>system.exe</title>
+<title>superhot.exe</title>
 
 <style>
+
+/* 🔤 ШРИФТ (локальный VCR) */
+@font-face {
+    font-family: 'VCR';
+    src: url('VCR_OSD_MONO.ttf');
+}
+
 body {
     margin: 0;
     background: black;
-    color: #e74c3c;
-    font-family: monospace;
+    color: #ff3c3c;
+    font-family: 'VCR', monospace;
+    overflow: hidden;
+
+    /* chromatic aberration */
+    text-shadow: 
+        2px 0 red,
+        -2px 0 cyan;
+
+    /* flicker */
+    animation: flicker 0.08s infinite;
+}
+
+/* 📺 CRT scanlines */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04),
+        rgba(255,255,255,0.04) 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+}
+
+/* 🌀 Fisheye */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        circle at center,
+        transparent 40%,
+        rgba(0,0,0,0.6) 100%
+    );
+    pointer-events: none;
+}
+
+/* 🎬 flicker */
+@keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.97; }
+    100% { opacity: 1; }
 }
 
 #terminal {
@@ -23,17 +73,13 @@ body {
 input {
     background: black;
     border: none;
-    color: #e74c3c;
-    font-family: monospace;
+    color: #ff3c3c;
+    font-family: inherit;
     outline: none;
     width: 100%;
 }
 
-.hidden {
-    display: none;
-}
-
-/* файловая система */
+/* 📂 FILE SYSTEM */
 #files {
     display: none;
     padding: 20px;
@@ -41,7 +87,7 @@ input {
 
 .file {
     cursor: pointer;
-    margin: 5px 0;
+    margin: 6px 0;
 }
 
 .file:hover {
@@ -51,11 +97,47 @@ input {
 #viewer {
     margin-top: 20px;
 }
+
+/* 💀 CANNONFODDER */
+#loopText {
+    display: none;
+    position: absolute;
+    inset: 0;
+    font-size: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #ff0000;
+}
+
+.marquee {
+    animation: scroll 3s linear infinite;
+}
+
+@keyframes scroll {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+
+/* 🎥 VIDEO */
+#videoContainer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: black;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- TERMINAL -->
 <div id="terminal">
     <div id="output"></div>
 
@@ -65,28 +147,38 @@ input {
     </div>
 </div>
 
+<!-- FILES -->
 <div id="files">
     <h3>root://classified</h3>
 
-    <div class="file" onclick="openFile('file1')">subject.txt</div>
-    <div class="file" onclick="openFile('file2')">image.png</div>
+    <div class="file" onclick="openFile('patience')">Patience.txt</div>
+    <div class="file" onclick="openFile('kindness')">Kindness.txt</div>
+    <div class="file" onclick="openFile('uriel')">Uriel.txt</div>
+    <div class="file" onclick="openFile('commander')">Commander.txt</div>
 
     <div id="viewer"></div>
 </div>
+
+<!-- VIDEO -->
+<div id="videoContainer">
+    <video id="vid" src="Sim_01.mp4" autoplay></video>
+</div>
+
+<!-- CANNONFODDER -->
+<div id="loopText"></div>
 
 <script>
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
-let stage = 0;
+let attempts = 0;
 
 function print(text) {
     output.innerHTML += text + "<br>";
 }
 
-print("Initializing system...");
-print("Access restricted.");
-print("Enter access code:");
+print("SUPERHOT SYSTEM");
+print("ENTER CODE:");
 
 input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
@@ -95,35 +187,70 @@ input.addEventListener("keydown", function(e) {
 
         print("> " + value);
 
-        if (stage === 0) {
-            if (value === "ABATEST") {
-                print("Access granted.");
-                setTimeout(() => {
-                    document.getElementById("terminal").style.display = "none";
-                    document.getElementById("files").style.display = "block";
-                }, 500);
-            } else {
-                print("Access denied.");
+        // 🔑 ABA → видео
+        if (value === "ABA") {
+            document.getElementById("terminal").style.display = "none";
+            const vidContainer = document.getElementById("videoContainer");
+            vidContainer.style.display = "block";
+
+            const vid = document.getElementById("vid");
+            vid.play();
+
+            return;
+        }
+
+        // 🔑 PROTOTYPEA1 → файлы
+        if (value === "PROTOTYPEA1") {
+            document.getElementById("terminal").style.display = "none";
+            document.getElementById("files").style.display = "block";
+            return;
+        }
+
+        // 🔑 CANNONFODDER → безумный текст
+        if (value === "CANNONFODDER") {
+            document.getElementById("terminal").style.display = "none";
+
+            const loop = document.getElementById("loopText");
+            loop.style.display = "block";
+
+            for (let i = 0; i < 20; i++) {
+                const line = document.createElement("div");
+                line.className = "marquee";
+                line.innerText = "LIVE AGAIN LIVE AGAIN DIES STOP";
+                loop.appendChild(line);
             }
+
+            return;
+        }
+
+        // ❌ неправильный код
+        attempts++;
+        print("ACCESS DENIED");
+
+        if (attempts >= 3) {
+            print("YOUR LOCATION HAS BEEN LOGGED");
         }
     }
 });
 
+/* 📂 FILES */
 function openFile(name) {
     const viewer = document.getElementById("viewer");
 
-    if (name === "file1") {
-        viewer.innerHTML = `
-            <h4>subject.txt</h4>
-            <p>Subject is no longer human.</p>
-        `;
+    if (name === "patience") {
+        viewer.innerHTML = "<h4>Patience.txt</h4><p>[DATA REDACTED]</p>";
     }
 
-    if (name === "file2") {
-        viewer.innerHTML = `
-            <h4>image.png</h4>
-            <img src="poster.png" width="300">
-        `;
+    if (name === "kindness") {
+        viewer.innerHTML = "<h4>Kindness.txt</h4><p>[DATA REDACTED]</p>";
+    }
+
+    if (name === "uriel") {
+        viewer.innerHTML = "<h4>Uriel.txt</h4><p>[DATA REDACTED]</p>";
+    }
+
+    if (name === "commander") {
+        viewer.innerHTML = "<h4>Commander.txt</h4><p>[DATA REDACTED]</p>";
     }
 }
 </script>
