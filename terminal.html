@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>superhot.exe</title>
+<title>system</title>
 
 <style>
 
-/* 🔤 ШРИФТ (локальный VCR) */
+/* 🔤 ШРИФТ */
 @font-face {
     font-family: 'VCR';
     src: url('VCR_OSD_MONO.ttf');
@@ -15,34 +15,25 @@
 body {
     margin: 0;
     background: black;
-    color: #ff3c3c;
     font-family: 'VCR', monospace;
     overflow: hidden;
-
-    /* chromatic aberration */
-    text-shadow: 
-        2px 0 red,
-        -2px 0 cyan;
-
-    /* flicker */
-    animation: flicker 0.08s infinite;
 }
 
-/* 📺 CRT scanlines */
+/* 📺 CRT */
 body::after {
     content: "";
     position: fixed;
     inset: 0;
     background: repeating-linear-gradient(
         to bottom,
-        rgba(255,255,255,0.04),
-        rgba(255,255,255,0.04) 1px,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
         transparent 2px
     );
     pointer-events: none;
 }
 
-/* 🌀 Fisheye */
+/* 🌀 FISHEYE */
 body::before {
     content: "";
     position: fixed;
@@ -55,11 +46,32 @@ body::before {
     pointer-events: none;
 }
 
-/* 🎬 flicker */
-@keyframes flicker {
-    0% { opacity: 1; }
-    50% { opacity: 0.97; }
-    100% { opacity: 1; }
+/* 💡 TEXT LAYERS */
+.line {
+    position: relative;
+    color: white;
+    font-size: 18px;
+}
+
+/* нижний слой (цветовой глитч) */
+.line::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: red;
+    opacity: 0.3;
+    transform: translate(2px, 0);
+}
+
+.line::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: cyan;
+    opacity: 0.3;
+    transform: translate(-2px, 0);
 }
 
 #terminal {
@@ -73,16 +85,17 @@ body::before {
 input {
     background: black;
     border: none;
-    color: #ff3c3c;
+    color: white;
     font-family: inherit;
     outline: none;
     width: 100%;
 }
 
-/* 📂 FILE SYSTEM */
+/* 📂 FILES */
 #files {
     display: none;
     padding: 20px;
+    color: white;
 }
 
 .file {
@@ -91,31 +104,11 @@ input {
 }
 
 .file:hover {
-    color: white;
+    color: red;
 }
 
 #viewer {
     margin-top: 20px;
-}
-
-/* 💀 CANNONFODDER */
-#loopText {
-    display: none;
-    position: absolute;
-    inset: 0;
-    font-size: 60px;
-    white-space: nowrap;
-    overflow: hidden;
-    color: #ff0000;
-}
-
-.marquee {
-    animation: scroll 3s linear infinite;
-}
-
-@keyframes scroll {
-    from { transform: translateX(100%); }
-    to { transform: translateX(-100%); }
 }
 
 /* 🎥 VIDEO */
@@ -132,22 +125,40 @@ video {
     object-fit: cover;
 }
 
+/* 💀 LOOP TEXT */
+#loopText {
+    display: none;
+    position: absolute;
+    inset: 0;
+    font-size: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    color: white;
+}
+
+.marquee {
+    animation: scroll 3s linear infinite;
+}
+
+@keyframes scroll {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- TERMINAL -->
 <div id="terminal">
     <div id="output"></div>
 
     <div class="input-line">
-        <span>> </span>
+        <span class="line" data-text="> ">> </span>
         <input id="input" autofocus>
     </div>
 </div>
 
-<!-- FILES -->
 <div id="files">
     <h3>root://classified</h3>
 
@@ -159,12 +170,10 @@ video {
     <div id="viewer"></div>
 </div>
 
-<!-- VIDEO -->
 <div id="videoContainer">
     <video id="vid" src="Sim_01.mp4" autoplay></video>
 </div>
 
-<!-- CANNONFODDER -->
 <div id="loopText"></div>
 
 <script>
@@ -173,40 +182,56 @@ const input = document.getElementById("input");
 
 let attempts = 0;
 
-function print(text) {
-    output.innerHTML += text + "<br>";
+/* ✍️ ПЕЧАТЬ */
+function typeLine(text, delay = 20) {
+    return new Promise(resolve => {
+        let i = 0;
+
+        const line = document.createElement("div");
+        line.className = "line";
+        output.appendChild(line);
+
+        function typing() {
+            if (i < text.length) {
+                line.textContent += text[i];
+                line.setAttribute("data-text", line.textContent);
+                i++;
+                setTimeout(typing, delay);
+            } else {
+                resolve();
+            }
+        }
+
+        typing();
+    });
 }
 
-print("SUPERHOT SYSTEM");
-print("ENTER CODE:");
+async function init() {
+    await typeLine("ENTER CODE:");
+}
+
+init();
 
 input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
         const value = input.value;
         input.value = "";
 
-        print("> " + value);
+        typeLine("> " + value);
 
-        // 🔑 ABA → видео
         if (value === "ABA") {
             document.getElementById("terminal").style.display = "none";
-            const vidContainer = document.getElementById("videoContainer");
-            vidContainer.style.display = "block";
-
-            const vid = document.getElementById("vid");
-            vid.play();
-
+            document.getElementById("videoContainer").style.display = "block";
+            document.getElementById("vid").play();
             return;
         }
 
-        // 🔑 PROTOTYPEA1 → файлы
         if (value === "PROTOTYPEA1") {
             document.getElementById("terminal").style.display = "none";
             document.getElementById("files").style.display = "block";
             return;
         }
 
-        // 🔑 CANNONFODDER → безумный текст
         if (value === "CANNONFODDER") {
             document.getElementById("terminal").style.display = "none";
 
@@ -219,16 +244,14 @@ input.addEventListener("keydown", function(e) {
                 line.innerText = "LIVE AGAIN LIVE AGAIN DIES STOP";
                 loop.appendChild(line);
             }
-
             return;
         }
 
-        // ❌ неправильный код
         attempts++;
-        print("ACCESS DENIED");
+        typeLine("ACCESS DENIED");
 
         if (attempts >= 3) {
-            print("YOUR LOCATION HAS BEEN LOGGED");
+            typeLine("YOUR LOCATION HAS BEEN LOGGED");
         }
     }
 });
