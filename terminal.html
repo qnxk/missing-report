@@ -17,7 +17,6 @@ body {
     overflow: hidden;
 }
 
-/* CRT */
 body::after {
     content: "";
     position: fixed;
@@ -31,7 +30,6 @@ body::after {
     pointer-events: none;
 }
 
-/* ВИНЬЕТКА ТОЛЬКО НА ТЕРМИНАЛ */
 #terminal {
     padding: 20px;
     position: relative;
@@ -49,7 +47,6 @@ body::after {
     pointer-events: none;
 }
 
-/* TEXT */
 .line {
     position: relative;
     color: white;
@@ -90,14 +87,12 @@ input {
     width: 100%;
 }
 
-/* FILES */
 #files {
     display: none;
     padding: 20px;
     color: white;
 }
 
-/* FILE VIEW */
 #fileViewer {
     display: none;
     padding: 20px;
@@ -112,7 +107,6 @@ input {
     cursor: pointer;
 }
 
-/* GIF */
 #videoContainer {
     display: none;
     position: fixed;
@@ -126,7 +120,6 @@ img {
     object-fit: cover;
 }
 
-/* EXIT BUTTON */
 #exitBtn {
     position: absolute;
     top: 20px;
@@ -139,7 +132,6 @@ img {
     z-index: 10;
 }
 
-/* CANNONFODDER */
 #rain {
     display: none;
     position: fixed;
@@ -150,6 +142,11 @@ img {
     overflow: hidden;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* NEW FILE COLOR */
+.red-file {
+    color: #8b0000;
 }
 </style>
 </head>
@@ -189,7 +186,13 @@ const fileData = {
     "patience.txt": "PATIENCE PROTOCOL ACTIVE...\n\nWaiting...\nWaiting...\nWaiting...",
     "subject_01.data": "SUBJECT ID: 01\nStatus: ACTIVE",
     "last_signal.wav": "ERROR: Cannot decode audio.",
-    "DO_NOT_OPEN.txt": "Why did you open this?"
+    "DO_NOT_OPEN.txt": "Why did you open this?",
+
+    /* NEW FILES */
+    "The Deadman": "unidentified1",
+    "osiris": "breached containment",
+    "The Greed": "unidentified2",
+    "The Wrath": "unidentified3"
 };
 
 let attempts = 0;
@@ -223,6 +226,14 @@ input.addEventListener("keydown", function(e) {
 
         typeLine("> " + value);
 
+        /* SEQUENCE TEST CODES */
+        if (["THEFLAWEDVIRTUE","ENDOSCOPY","COMMANDER"].includes(value)) {
+            for (let i = 1; i <= 5; i++) {
+                typeLine("test" + i);
+            }
+            return;
+        }
+
         if (value === "ABA") {
             document.getElementById("terminal").style.display = "none";
             document.getElementById("videoContainer").style.display = "block";
@@ -244,9 +255,10 @@ input.addEventListener("keydown", function(e) {
             files.innerHTML = `
                 <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
                 <br>
-                ${Object.keys(fileData).map(name => 
-                    `<div class="line" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`
-                ).join("")}
+                ${Object.keys(fileData).map(name => {
+                    const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
+                    return `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
+                }).join("")}
             `;
             return;
         }
