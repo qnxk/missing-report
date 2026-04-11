@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>ACTIVE WARRANT NOTICE</title>
+
 <style>
     body {
         margin: 0;
@@ -116,8 +117,29 @@
         border-top: 1px solid #999;
         padding-top: 15px;
     }
+
+    /* КНОПКА */
+    .access-btn {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .access-btn button {
+        padding: 15px 30px;
+        font-size: 18px;
+        background: black;
+        color: white;
+        border: none;
+        cursor: pointer;
+        letter-spacing: 2px;
+    }
+
+    .access-btn button:hover {
+        background: #222;
+    }
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -144,11 +166,11 @@
 
     <div class="charges">
         <strong>Charges:</strong><br>
-    Violation of restricted protocols.<br>
-    Unauthorized access to classified systems.<br>
-    Tampering with sealed records.<br>
-    Homicide of multiple Celestial entities.<br>
-    Additional charges remain redacted.
+        Violation of restricted protocols.<br>
+        Unauthorized access to classified systems.<br>
+        Tampering with sealed records.<br>
+        Homicide of multiple Celestial entities.<br>
+        Additional charges remain redacted.
     </div>
 
     <div class="warning">
@@ -157,7 +179,15 @@
 
     <div class="qr-section">
         <p>MORE INFORMATION AT</p>
+        <!-- QR ведёт на terminal.html -->
         <img src="REDACTED.png" alt="QR Code">
+    </div>
+
+    <!-- НОВАЯ КНОПКА -->
+    <div class="access-btn">
+        <button onclick="location.href='terminal.html'">
+            ACCESS ARCHIVE
+        </button>
     </div>
 
     <div class="footer">
