@@ -180,16 +180,27 @@ const output = document.getElementById("output");
 const input = document.getElementById("input");
 
 const fileData = {
-    "kindness.txt": "SEARCH MODULE INITIALIZED...\n\nSubject shows emotional instability.\nResponse pattern: inconsistent.\nRecommendation: observe further.",
-    "uriel.log": "[LOG 01]\nSignal received.\nSource unknown.\n\n[LOG 02]\nVoice detected.\n'SHe is still alive.'",
-    "patience.txt": "PATIENCE PROTOCOL ACTIVE...\n\nWaiting...\nWaiting...\nWaiting...",
-    "subject_01.data": "SUBJECT ID: 01\nStatus: ACTIVE",
-    "last_signal.wav": "ERROR: Cannot decode audio.",
-    "DO_NOT_OPEN.txt": "Why did you open this?",
-    "The Deadman": "unidentified1",
-    "osiris": "breached containment",
-    "The Greed": "unidentified2",
-    "The Wrath": "unidentified3"
+    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nSEARCH MODULE INITIALIZED...\n\nSubject shows emotional instability.\nResponse pattern: inconsistent.\nRecommendation: observe further.",
+
+    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\n[LOG 01]\nSignal received.\nSource unknown.\n\n[LOG 02]\nVoice detected.\n'SHe is still alive.'",
+
+    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPATIENCE PROTOCOL ACTIVE...\n\nWaiting...\nWaiting...\nWaiting...",
+
+    "PrototypeA2.data": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Unstable\n\nLog:\nDetached arm unit. Constant electrical discharge observed.\nStructural similarity to Prototype A1.\nSignal persists.",
+
+    "Last_Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nERROR: Cannot decode audio.",
+
+    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Rogue\nStatus: Active\n\nLog:\nunidentified1",
+
+    "Osiris.txt": "OSIRIS\n\nAffiliation: Unknown\nStatus: Breached\n\nLog:\nbreached containment",
+
+    "The Greed.txt": "THE GREED\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nunidentified2",
+
+    "The Wrath.txt": "THE WRATH\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nunidentified3",
+
+    "The Fool.txt": "THE FOOL\n\nAffiliation: Unknown\nStatus: Anomaly\n\nLog:\nBehavior: unpredictable.\nSpeech pattern: fragmented.\n\nNote: laughter recorded during combat logs.",
+
+    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nFragmented memory detected.\n\n'...I remember something. Not everything.'"
 };
 
 let attempts = 0;
@@ -223,14 +234,14 @@ input.addEventListener("keydown", function(e) {
 
         typeLine("> " + value);
 
-        if (["THEFLAWEDVIRTUE","ENDOSCOPY","COMMANDER"].includes(value)) {
+        if (["THEFLAWEDVIRTUE", "ENDOSCOPY", "COMMANDER"].includes(value)) {
             for (let i = 1; i <= 5; i++) {
                 typeLine("test" + i);
             }
             return;
         }
 
-        if (value === "ABA") {
+        if (value === atob("QUJB")) {
             document.getElementById("terminal").style.display = "none";
             document.getElementById("videoContainer").style.display = "block";
             return;
@@ -254,7 +265,14 @@ input.addEventListener("keydown", function(e) {
                 <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
                 <br>
                 ${Object.keys(fileData).map(name => {
-                    const isNew = ["The Deadman","osiris","The Greed","The Wrath"].includes(name);
+                    const isNew = [
+                        "The Deadman.txt",
+                        "Osiris.txt",
+                        "The Greed.txt",
+                        "The Wrath.txt",
+                        "The Fool.txt"
+                    ].includes(name);
+
                     return `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
                 }).join("")}
             `;
