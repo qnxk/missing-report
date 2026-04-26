@@ -1,3 +1,8 @@
+Причина: у `The Neither` внутри `<div>` были переносы строк + `data-text`, из-за этого аберрация рисовала один текст, а обычный текст — другой.
+
+## ПОЛНЫЙ КОД
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,18 +40,12 @@ body::after {
     position: relative;
 }
 
-#terminal::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.7) 100%);
-}
-
 .line {
     position: relative;
     color: white;
     font-size: 18px;
     white-space: pre;
+    cursor: pointer;
 }
 
 .line::before,
@@ -74,30 +73,35 @@ input {
     background: black;
     border: none;
     color: white;
-    width: 100%;
-    outline: none;
     font-family: inherit;
+    outline: none;
+    width: 100%;
 }
 
-.red-file { color:#ff0000; }
-.uncertain-file { color:#d6a0a0; }
+#files, #fileViewer {
+    display: none;
+    padding: 20px;
+    color: white;
+}
+
+.red-file {
+    color: #ff0000;
+}
+
+.uncertain-file {
+    color: #d6a0a0;
+}
 
 .glitch {
-    color:#ff4444;
+    color: #ff4444;
     animation: glitch 0.1s infinite;
 }
 
 @keyframes glitch {
-    0% {transform:translate(0);}
-    50% {transform:translate(2px,-1px);}
-    100% {transform:translate(-2px,1px);}
+    0% { transform: translate(0); }
+    50% { transform: translate(2px, -1px); }
+    100% { transform: translate(-2px, 1px); }
 }
-
-#files, #fileViewer {
-    display:none;
-    padding:20px;
-}
-
 </style>
 </head>
 
@@ -105,13 +109,14 @@ input {
 
 <div id="terminal">
     <div id="output"></div>
-    <div>> <input id="input" autofocus></div>
+    <div class="line" data-text="> ">> <input id="input" autofocus></div>
 </div>
 
 <div id="files"></div>
 
 <div id="fileViewer">
-    <div onclick="backToFiles()">[BACK]</div>
+    <div class="line" onclick="backToFiles()" data-text="[BACK]">[BACK]</div>
+    <br>
     <div id="fileContent"></div>
 </div>
 
@@ -119,144 +124,177 @@ input {
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
-function typeLine(text, cls=""){
-    const div=document.createElement("div");
-    div.className="line "+cls;
-    div.textContent=text;
+const fileData = {
+    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPublic image: merciful and calm.\nInternal records suggest she ordered the destruction of ancient archives, scriptures, and forgotten history.\nShe believes the Collective Unconscious is too dangerous to be touched again.\nProtects people, but hides the truth from them.\nPossible motive: preservation through control.",
+
+    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nMaintains discipline through suppression.\nTreats rebellion attempts as training for soldiers.\nShows increasing aggression and loss of restraint.\nKindness stated his behavior no longer fits his Title.\nKnown to regenerate after fatal damage.\nThreat level remains high even among allied forces.",
+
+    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nServes the Church with absolute devotion.\nBelieves fear creates devotion.\nSupports public demonstrations of divine power despite civil unrest.\nShows strong loyalty toward Kindness.\nConsiders heretics and infernal beings beneath Celestials.\nCombat response: immediate execution by flame.",
+
+    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nServes beside Kindness as her trusted helper.\nStill holds onto duty, loyalty, and old heroic ideals.\nMemory appears fragmented, but emotional response remains stable.\nSenses corruption in The Flawed Virtue.\nQuestioned whether the Virtues are changing.\nStill chooses to stay with Kindness.",
+
+    "The Greed.txt": "THE GREED\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nFormer keeper of forbidden archives.\nCollected records about the world's original state.\nArchive contained contradictions, ancient history, and erased knowledge.\nMost records were destroyed by order of Kindness.\nShows hatred toward those who burned his work.\nMotivation: preservation of truth, ownership of knowledge.",
+
+    "The Wrath.txt": "THE WRATH\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nDriven by revenge against Patience.\nRemembers victims of divine judgment and refuses to forgive.\nBelieves Patience's judgment is blind.\nHas killed Patience multiple times, but failed to make it permanent.\nEmotional instability detected.\nCombat pattern: direct assault, high aggression.",
+
+    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nFormer human.\nRecords mention desertion, crime, and attempted execution by hanging.\nCurrent condition: barely human.\nSpeech degraded into coughing, rustling, and gurgling sounds.\nStill recognized by some old allies and enemies.\nPossible remaining memory fragments detected.",
+
+    "Osiris.txt": "OSIRIS\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nOrigin unknown.\nCommunication minimal.\nKindness claims his origins may never be recovered.\nWhite Death suspects a manufactured or artificial nature.\nNo confirmed creator.\nContainment status uncertain.",
+
+    "The Fool.txt": "THE FOOL\n\nAffiliation: Heretic\nStatus: Anomaly\n\nLog:\nLinked to ancient powers and the Old Deus.\nKindness recognizes him from the Era of Chaos.\nThe Fool denies all direct claims.\nDisplays knowledge of extinct beings and forgotten technology.\nRecognized White Death's railgun model.\nBehavior pattern: calm, mocking, unpredictable.\nThreat level: unknown.",
+
+    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment Recovered\n\nLog:\nOnly one severed arm has been recovered.\nNo head, torso, or full body confirmed.\nThe limb constantly emits electrical discharge.\nMovement sometimes occurs without external input.\nSignal pulses are irregular.\nDo not touch without insulation.",
+
+    "The Neither.txt": "THE NEITHER\n\nAffiliation: Unknown At This Time\nStatus: Under Suspicion\n\nLog:\nRecorded statements show growing resentment toward the Virtues.\nHe questioned why a weakling could awaken his true self while he could not.\nHe repeatedly asked what went wrong and searched for answers about his origin.\nReports mention the united front falling while the Virtues remained inactive.\nPatience requested distance from him.\nWrath called him a mortal challenging a Celestial.\nPrototype A1 has no confirmed betrayal record yet.\nSuspicion level: increasing.",
+
+    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nAudio file damaged.\nDecoding failed.\nRecovered fragments contain static, breathing, and repeated signal spikes.\nSource unknown.\nPlayback not recommended."
+};
+
+function typeLine(text, cls = "") {
+    const div = document.createElement("div");
+    div.className = "line " + cls;
+    div.textContent = text;
     div.setAttribute("data-text", text);
     output.appendChild(div);
 }
 
 typeLine("ENTER CODE:");
 
-input.addEventListener("keydown", e=>{
-if(e.key==="Enter"){
-let value=input.value.toUpperCase().trim();
-input.value="";
-typeLine("> "+value);
+input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        const value = input.value.toUpperCase().trim();
+        input.value = "";
 
-// === КОДЫ ===
+        typeLine("> " + value);
 
-if(value==="PROTOTYPEA1"){ openFiles(); return; }
-
-if(value===atob("QUJB")){
-    typeLine("...");
-    return;
-}
-
-if(value==="COMMANDER"){
-    typeLine("AUTHORITY DETECTED");
-    typeLine("Squad Seven, advance.");
-    typeLine("Move out.");
-    return;
-}
-
-if(value==="THEFLAWEDVIRTUE"){
-    typeLine("WARNING: CORRUPTION");
-    typeLine("Something is different...");
-    typeLine("What was sealed from me?");
-    return;
-}
-
-if(value==="ENDOSCOPY"){
-    typeLine("SCANNING...");
-    typeLine("Fragment found.");
-    typeLine("...what went wrong?");
-    return;
-}
-
-if(value==="WHITEDEATH"){
-    typeLine("HOSTILE ENTITY", "glitch");
-    typeLine("Threat: HIGH", "glitch");
-    typeLine("Objective: Kill Virtues", "glitch");
-
-    setTimeout(()=>{
-        if(Math.random()<0.6){
-            typeLine("CONNECTION LOST...", "glitch");
-            input.disabled=true;
+        if (value === "PROTOTYPEA1") {
+            openFiles();
+            return;
         }
-    },1200);
 
-    return;
-}
+        if (value === atob("QUJB")) {
+            typeLine("...");
+            return;
+        }
 
-if(value==="OSIRIS"){
-    typeLine("UNKNOWN ENTITY");
-    typeLine("Origin undefined");
-    return;
-}
+        if (value === "COMMANDER") {
+            typeLine("AUTHORITY DETECTED");
+            typeLine("Squad Seven, advance.");
+            typeLine("Move out.");
+            return;
+        }
 
-if(value==="GREED"){
-    typeLine("ARCHIVE ERROR");
-    typeLine("Data erased");
-    return;
-}
+        if (value === "THEFLAWEDVIRTUE") {
+            typeLine("WARNING: CORRUPTION");
+            typeLine("Something is different...");
+            typeLine("What was sealed from me?");
+            return;
+        }
 
-typeLine("ACCESS DENIED");
-}
+        if (value === "ENDOSCOPY") {
+            typeLine("SCANNING...");
+            typeLine("Fragment found.");
+            typeLine("...what went wrong?");
+            return;
+        }
+
+        if (value === "WHITEDEATH") {
+            typeLine("HOSTILE ENTITY", "glitch");
+            typeLine("Threat: HIGH", "glitch");
+            typeLine("Objective: Kill Virtues", "glitch");
+
+            setTimeout(() => {
+                if (Math.random() < 0.6) {
+                    typeLine("CONNECTION LOST...", "glitch");
+                    input.disabled = true;
+                }
+            }, 1200);
+
+            return;
+        }
+
+        if (value === "OSIRIS") {
+            typeLine("UNKNOWN ENTITY");
+            typeLine("Origin undefined");
+            return;
+        }
+
+        if (value === "GREED") {
+            typeLine("ARCHIVE ERROR");
+            typeLine("Data erased");
+            return;
+        }
+
+        typeLine("ACCESS DENIED");
+    }
 });
 
-function openFiles(){
-document.getElementById("terminal").style.display="none";
-let files=document.getElementById("files");
-files.style.display="block";
+function fileLine(name, cls = "") {
+    return `<div class="line ${cls}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
+}
 
-files.innerHTML=`
+function neitherLine() {
+    return `<div class="line uncertain-file" onclick="openFile('The Neither.txt')" data-text="> The Neither.txt" onmouseenter="this.textContent='> The Flawed Virtue.txt';this.setAttribute('data-text','> The Flawed Virtue.txt')" onmouseleave="this.textContent='> The Neither.txt';this.setAttribute('data-text','> The Neither.txt')">> The Neither.txt</div>`;
+}
+
+function openFiles() {
+    document.getElementById("terminal").style.display = "none";
+
+    const files = document.getElementById("files");
+    files.style.display = "block";
+
+    files.innerHTML = `
 <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div><br>
 
 <div class="line" data-text="----- ALLIES -----">----- ALLIES -----</div>
-<div class="line" onclick="openFile('Kindness.txt')" data-text="> Kindness.txt">> Kindness.txt</div>
-<div class="line" onclick="openFile('Patience.txt')" data-text="> Patience.txt">> Patience.txt</div>
-<div class="line" onclick="openFile('Uriel.log')" data-text="> Uriel.log">> Uriel.log</div>
-<div class="line" onclick="openFile('TFH.txt')" data-text="> TFH.txt">> TFH.txt</div>
+${fileLine("Kindness.txt")}
+${fileLine("Patience.txt")}
+${fileLine("Uriel.log")}
+${fileLine("TFH.txt")}
 
 <br>
 
 <div class="line red-file" data-text="----- HERETICS -----">----- HERETICS -----</div>
-<div class="line red-file" onclick="openFile('The Greed.txt')" data-text="> The Greed.txt">> The Greed.txt</div>
-<div class="line red-file" onclick="openFile('The Wrath.txt')" data-text="> The Wrath.txt">> The Wrath.txt</div>
-<div class="line red-file" onclick="openFile('The Deadman.txt')" data-text="> The Deadman.txt">> The Deadman.txt</div>
-<div class="line red-file" onclick="openFile('Osiris.txt')" data-text="> Osiris.txt">> Osiris.txt</div>
-<div class="line red-file" onclick="openFile('The Fool.txt')" data-text="> The Fool.txt">> The Fool.txt</div>
+${fileLine("The Greed.txt", "red-file")}
+${fileLine("The Wrath.txt", "red-file")}
+${fileLine("The Deadman.txt", "red-file")}
+${fileLine("Osiris.txt", "red-file")}
+${fileLine("The Fool.txt", "red-file")}
 
 <br>
 
 <div class="line" data-text="----- OTHER -----">----- OTHER -----</div>
-<div class="line" onclick="openFile('PrototypeA2.txt')" data-text="> PrototypeA2.txt">> PrototypeA2.txt</div>
-
-<div class="line uncertain-file"
-onclick="openFile('The Neither.txt')"
-data-text="> The Neither.txt"
-onmouseenter="this.textContent='> The Flawed Virtue.txt'; this.setAttribute('data-text','> The Flawed Virtue.txt')"
-onmouseleave="this.textContent='> The Neither.txt'; this.setAttribute('data-text','> The Neither.txt')">
-> The Neither.txt</div>
-
-<div class="line" data-text="> Last Signal.wav">> Last Signal.wav</div>
+${fileLine("PrototypeA2.txt")}
+${neitherLine()}
+${fileLine("Last Signal.wav")}
 `;
 }
 
-function openFile(name){
-document.getElementById("files").style.display="none";
-document.getElementById("fileViewer").style.display="block";
+function openFile(name) {
+    document.getElementById("files").style.display = "none";
+    document.getElementById("fileViewer").style.display = "block";
 
-const content = name + " OPENED"; // пока заглушка
+    const content = fileData[name] || "EMPTY FILE";
+    const container = document.getElementById("fileContent");
+    container.innerHTML = "";
 
-const container=document.getElementById("fileContent");
-container.innerHTML="";
-content.split("\n").forEach(line=>{
-    const div=document.createElement("div");
-    div.className="line";
-    div.textContent=line;
-    div.setAttribute("data-text", line);
-    container.appendChild(div);
-});
+    content.split("\n").forEach(lineText => {
+        const div = document.createElement("div");
+        div.className = "line";
+        div.textContent = lineText;
+        div.setAttribute("data-text", lineText);
+        container.appendChild(div);
+    });
 }
 
-function backToFiles(){
-document.getElementById("fileViewer").style.display="none";
-document.getElementById("files").style.display="block";
+function backToFiles() {
+    document.getElementById("fileViewer").style.display = "none";
+    document.getElementById("files").style.display = "block";
 }
 </script>
 
 </body>
 </html>
+```
+
+Ключевой фикс — `neitherLine()` теперь создаёт строку **в одну строку без переносов внутри div**.
