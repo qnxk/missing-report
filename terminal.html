@@ -17,31 +17,135 @@ body {
     overflow: hidden;
 }
 
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.08) 2px,
+        rgba(0,0,0,0) 4px
+    );
+    pointer-events: none;
+}
+
+#terminal {
+    padding: 20px;
+    position: relative;
+}
+
+#terminal::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at center,
+        transparent 40%,
+        rgba(0,0,0,0.7) 100%
+    );
+    pointer-events: none;
+}
+
 .line {
+    position: relative;
     color: white;
     font-size: 18px;
     cursor: pointer;
 }
 
-.red-file {
-    color: #ff0000;
+.line::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: red;
+    opacity: 0.3;
+    transform: translate(2px, 0);
 }
 
-.blue-file {
-    color: #66ccff;
+.line::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: cyan;
+    opacity: 0.3;
+    transform: translate(-2px, 0);
 }
 
-#files, #fileViewer, #videoContainer, #rain {
-    display: none;
-    padding: 20px;
+.input-line {
+    display: flex;
 }
 
 input {
     background: black;
     border: none;
     color: white;
+    font-family: inherit;
     outline: none;
     width: 100%;
+}
+
+#files {
+    display: none;
+    padding: 20px;
+    color: white;
+}
+
+#fileViewer {
+    display: none;
+    padding: 20px;
+    color: white;
+}
+
+#backBtn {
+    margin-bottom: 20px;
+    border: 1px solid red;
+    display: inline-block;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#videoContainer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: black;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#exitBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: black;
+    color: white;
+    border: 1px solid red;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#rain {
+    display: none;
+    position: fixed;
+    inset: 0;
+    padding: 20px;
+    color: red;
+    font-size: 18px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.red-file {
+    color: #ff0000;
 }
 </style>
 </head>
@@ -50,21 +154,23 @@ input {
 
 <div id="terminal">
     <div id="output"></div>
-    <div>
-        > <input id="input" autofocus>
+
+    <div class="input-line">
+        <span class="line" data-text="> ">> </span>
+        <input id="input" autofocus>
     </div>
 </div>
 
 <div id="files"></div>
 
 <div id="fileViewer">
-    <div onclick="backToFiles()">[BACK]</div>
+    <div id="backBtn" onclick="backToFiles()">[BACK]</div>
     <div id="fileContent"></div>
 </div>
 
 <div id="videoContainer">
-    <button onclick="exitVideo()">EXIT</button>
-    <img src="Sim_01.gif">
+    <button id="exitBtn" onclick="exitVideo()">EXIT</button>
+    <img src="Sim_01.gif?t=<?=Date.now()?>">
 </div>
 
 <div id="rain"></div>
@@ -74,35 +180,49 @@ const output = document.getElementById("output");
 const input = document.getElementById("input");
 
 const fileData = {
-    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nTFH serves beside Kindness and still holds onto duty, loyalty, and doubt. He senses corruption in others, especially The Flawed Virtue.",
+    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nKindness remains gentle on the surface, but records suggest she ordered the destruction of old archives. She believes the past and the Collective Unconscious are too dangerous to be used again.",
 
-    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nKindness ordered the destruction of ancient archives. She believes the past must remain buried to protect the world.",
+    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPatience treats rebellion as training. Suppression keeps soldiers sharp, but his methods have become harsher. Even Kindness believes his title no longer fits his behavior.",
 
-    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPatience treats rebellion as necessary. Suppression is used to maintain strength among soldiers.",
+    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nUriel serves the Church with absolute devotion. He believes fear creates devotion and that divine power must be demonstrated, even if it causes unrest.",
 
-    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nUriel believes fear creates devotion. Public demonstrations of divine power are encouraged.",
+    "The Greed.txt": "THE GREED\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nGreed was the keeper of archives and forbidden records. His collection contained contradictions and traces of the world's original state, but much of it was destroyed by order of Kindness.",
 
-    "The Greed.txt": "THE GREED\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nKeeper of archives. Lost knowledge about the world’s original state was destroyed.",
+    "The Wrath.txt": "THE WRATH\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nWrath carries hatred toward Patience for those killed under divine judgment. He seeks revenge, but Patience still sees him as unfinished and beneath the mark.",
 
-    "The Wrath.txt": "THE WRATH\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nDriven by vengeance. Opposes divine judgment but lacks power to challenge it fully.",
+    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nTFH serves beside Kindness and still holds onto duty, loyalty, and doubt. He senses corruption in others, especially The Flawed Virtue, but does not fully understand the force pulling them together.",
 
-    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment Recovered\n\nLog:\nOnly a severed arm has been recovered. Emits constant electrical discharge.",
+    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment Recovered\n\nLog:\nOnly one severed arm has been recovered. The limb produces constant electrical discharge. No full body confirmed.",
 
-    "Last_Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nERROR: Cannot decode audio.",
+    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nERROR: Cannot decode audio.",
 
-    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Rogue\nStatus: Active\n\nLog:\nFormer human. Now barely responsive. Produces distorted sounds and unstable behavior.",
+    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Rogue\nStatus: Active\n\nLog:\nA former man turned into something barely human. Records mention desertion, crime, execution attempts, and repeated references to hanging. Vocal response is mostly coughing and gurgling.",
 
-    "Osiris.txt": "OSIRIS\n\nAffiliation: Unknown\nStatus: Active\n\nLog:\nOrigin unknown. Communication minimal. Possibly artificial or incomplete entity.",
+    "Osiris.txt": "OSIRIS\n\nAffiliation: Unknown\nStatus: Active\n\nLog:\nOsiris shows no clear speech pattern. Kindness claims his origin may be impossible to recover. White Death suspects a shared artificial or manufactured nature.",
 
-    "The Fool.txt": "THE FOOL\n\nAffiliation: Unknown\nStatus: Anomaly\n\nLog:\nLinked to ancient powers. Displays knowledge that should not exist. Highly unpredictable."
+    "The Fool.txt": "THE FOOL\n\nAffiliation: Unknown\nStatus: Anomaly\n\nLog:\nThe Fool appears connected to ancient powers and the Old Deus. Kindness recognizes him as something from the Era of Chaos, while The Fool denies it. He shows knowledge of forgotten technology and extinct beings."
 };
 
 let attempts = 0;
 
-function typeLine(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    output.appendChild(div);
+function typeLine(text, delay = 15) {
+    return new Promise(resolve => {
+        let i = 0;
+        const line = document.createElement("div");
+        line.className = "line";
+        output.appendChild(line);
+
+        function typing() {
+            if (i < text.length) {
+                line.textContent += text[i];
+                line.setAttribute("data-text", line.textContent);
+                i++;
+                setTimeout(typing, delay);
+            } else resolve();
+        }
+
+        typing();
+    });
 }
 
 typeLine("ENTER CODE:");
@@ -111,7 +231,15 @@ input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
         let value = input.value.trim().toUpperCase();
         input.value = "";
+
         typeLine("> " + value);
+
+        if (["THEFLAWEDVIRTUE","ENDOSCOPY","COMMANDER"].includes(value)) {
+            for (let i = 1; i <= 5; i++) {
+                typeLine("test" + i);
+            }
+            return;
+        }
 
         if (value === atob("QUJB")) {
             document.getElementById("terminal").style.display = "none";
@@ -119,42 +247,63 @@ input.addEventListener("keydown", function(e) {
             return;
         }
 
+        if (value === "CANNONFODDER") {
+            document.getElementById("terminal").style.display = "none";
+            startRain();
+            return;
+        }
+
         if (value === "PROTOTYPEA1") {
-            openFiles();
+            document.getElementById("terminal").style.display = "none";
+
+            const files = document.getElementById("files");
+            files.style.display = "block";
+
+            files.innerHTML = `
+                <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+                <br>
+                <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
+                <br>
+                ${Object.keys(fileData).map(name => {
+                    const isNew = [
+                        "The Deadman.txt",
+                        "Osiris.txt",
+                        "The Greed.txt",
+                        "The Wrath.txt",
+                        "The Fool.txt"
+                    ].includes(name);
+
+                    return `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
+                }).join("")}
+            `;
             return;
         }
 
         attempts++;
         typeLine("ACCESS DENIED");
+
+        if (attempts >= 3) {
+            typeLine("YOUR LOCATION HAS BEEN LOGGED");
+        }
     }
 });
-
-function openFiles() {
-    document.getElementById("terminal").style.display = "none";
-    const files = document.getElementById("files");
-    files.style.display = "block";
-
-    files.innerHTML = `
-        <div>ACCESS GRANTED</div><br>
-        ${Object.keys(fileData).map(name => {
-            const isEnemy = ["The Deadman.txt","Osiris.txt","The Greed.txt","The Wrath.txt","The Fool.txt"].includes(name);
-            const isVirtue = ["TFH.txt","Kindness.txt","Patience.txt","Uriel.log"].includes(name);
-
-            let cls = "";
-            if (isEnemy) cls = "red-file";
-            if (isVirtue) cls = "blue-file";
-
-            return `<div class="${cls}" onclick="openFile('${name}')">> ${name}</div>`;
-        }).join("")}
-    `;
-}
 
 function openFile(name) {
     document.getElementById("files").style.display = "none";
     document.getElementById("fileViewer").style.display = "block";
 
+    const content = fileData[name] || "EMPTY FILE";
     const container = document.getElementById("fileContent");
-    container.innerHTML = fileData[name].replace(/\n/g, "<br>");
+
+    container.innerHTML = "";
+
+    content.split("\n").forEach(lineText => {
+        const div = document.createElement("div");
+        div.className = "line";
+        div.textContent = lineText;
+        div.setAttribute("data-text", lineText);
+        container.appendChild(div);
+    });
 }
 
 function backToFiles() {
@@ -165,6 +314,39 @@ function backToFiles() {
 function exitVideo() {
     document.getElementById("videoContainer").style.display = "none";
     document.getElementById("terminal").style.display = "block";
+}
+
+function logout() {
+    document.getElementById("files").style.display = "none";
+    document.getElementById("terminal").style.display = "block";
+}
+
+function startRain() { 
+    const rain = document.getElementById("rain");
+    rain.style.display = "block";
+
+    let text = "LIVE AGAIN LIVE AGAIN DIES STOP ";
+    let fullText = "";
+
+    function flood() {
+        fullText += text.repeat(10);
+        rain.innerText = fullText;
+
+        if (fullText.length > 20000) {
+            setTimeout(() => {
+                window.open("", "_self");
+                window.close();
+                document.body.innerHTML = "";
+                document.body.style.background = "black";
+                document.title = "";
+            }, 1000);
+            return;
+        }
+
+        setTimeout(flood, 20);
+    }
+
+    flood();
 }
 </script>
 
