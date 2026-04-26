@@ -28,6 +28,7 @@ body::after {
         rgba(0,0,0,0) 4px
     );
     pointer-events: none;
+    z-index: 1000;
 }
 
 #terminal {
@@ -92,10 +93,36 @@ input {
     animation: glitch 0.1s infinite;
 }
 
+.dim {
+    color: #b8b8b8;
+}
+
 @keyframes glitch {
     0% { transform: translate(0); }
     50% { transform: translate(2px, -1px); }
     100% { transform: translate(-2px, 1px); }
+}
+
+#endoContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 999;
+}
+
+.endo-img {
+    position: absolute;
+    width: 180px;
+    animation: shake 0.08s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(3px, -3px) rotate(1deg); }
+    50% { transform: translate(-3px, 3px) rotate(-1deg); }
+    75% { transform: translate(3px, 3px) rotate(1deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
 }
 </style>
 </head>
@@ -114,6 +141,8 @@ input {
     <br>
     <div id="fileContent"></div>
 </div>
+
+<div id="endoContainer"></div>
 
 <script>
 const output = document.getElementById("output");
@@ -145,12 +174,30 @@ const fileData = {
     "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nAudio file damaged.\nDecoding failed.\nRecovered fragments contain static, breathing, and repeated signal spikes.\nSource unknown.\nPlayback not recommended."
 };
 
-function typeLine(text, cls = "") {
-    const div = document.createElement("div");
-    div.className = "line " + cls;
-    div.textContent = text;
-    div.setAttribute("data-text", text);
-    output.appendChild(div);
+function typeLine(text, cls = "", delay = 15) {
+    return new Promise(resolve => {
+        let i = 0;
+        const div = document.createElement("div");
+        div.className = "line " + cls;
+        output.appendChild(div);
+
+        function typing() {
+            if (i < text.length) {
+                div.textContent += text[i];
+                div.setAttribute("data-text", div.textContent);
+                i++;
+                setTimeout(typing, delay);
+            } else {
+                resolve();
+            }
+        }
+
+        typing();
+    });
+}
+
+function delayedLine(text, time, cls = "", delay = 15) {
+    setTimeout(() => typeLine(text, cls, delay), time);
 }
 
 typeLine("ENTER CODE:");
@@ -168,61 +215,112 @@ input.addEventListener("keydown", function(e) {
         }
 
         if (value === atob("QUJB")) {
-            typeLine("...");
+            delayedLine("VISUAL RECORD FOUND.", 300);
+            delayedLine("Opening simulation file...", 900);
+            delayedLine("Do not trust what the camera remembers.", 1600, "dim");
             return;
         }
 
         if (value === "COMMANDER") {
-            typeLine("AUTHORITY DETECTED");
-            typeLine("Squad Seven, advance.");
-            typeLine("Move out.");
+            delayedLine("AUTHORITY SIGNATURE DETECTED.", 300);
+            delayedLine("Identity: THE SUPREME COMMANDER", 800);
+            delayedLine("Order chain confirmed.", 1300);
+            delayedLine("Squad Seven, advance on the heretic position.", 1900);
+            delayedLine("Cannon Fodder response corrupted.", 2600, "dim");
+            delayedLine("Close enough. Move out.", 3300);
             return;
         }
 
         if (value === "THEFLAWEDVIRTUE") {
-            typeLine("WARNING: CORRUPTION");
-            typeLine("Something is different...");
-            typeLine("What was sealed from me?");
+            delayedLine("WARNING: CORRUPTION TRACE FOUND.", 300, "glitch");
+            delayedLine("Old title detected: THE NEITHER", 900, "uncertain-file");
+            delayedLine("New title unstable: THE FLAWED VIRTUE", 1500, "uncertain-file");
+            delayedLine("Question recovered: What was sealed from me?", 2300);
+            delayedLine("Suspicion: betrayal not confirmed.", 3100, "dim");
+            delayedLine("A1 NOTE: monitor closely.", 3900, "dim");
             return;
         }
 
         if (value === "ENDOSCOPY") {
-            typeLine("SCANNING...");
-            typeLine("Fragment found.");
-            typeLine("...what went wrong?");
+            startEndoscopy();
             return;
         }
 
         if (value === "WHITEDEATH") {
-            typeLine("HOSTILE ENTITY", "glitch");
-            typeLine("Threat: HIGH", "glitch");
-            typeLine("Objective: Kill Virtues", "glitch");
+            delayedLine("HOSTILE ENTITY DETECTED.", 200, "glitch");
+            delayedLine("Designation: WHITE DEATH", 700, "glitch");
+            delayedLine("Heretic class confirmed.", 1200, "glitch");
+            delayedLine("Weapon familiarity: ancient rail systems.", 1900, "dim");
+            delayedLine("Recorded intent: eradication of abominations.", 2600);
+            delayedLine("Prototype A1 emotional limiter: FAILED.", 3400, "glitch");
+            delayedLine("New directive generated:", 4200, "glitch");
+            delayedLine("FIND WHITE DEATH.", 5000, "glitch");
+            delayedLine("BREAK WHITE DEATH.", 5700, "glitch");
+            delayedLine("RETURN WITH CONFIRMATION.", 6400, "glitch");
 
             setTimeout(() => {
                 if (Math.random() < 0.6) {
-                    typeLine("CONNECTION LOST...", "glitch");
-                    input.disabled = true;
+                    typeLine("SIGNAL INSTABILITY DETECTED.", "glitch");
+                    delayedLine("CONNECTION LOST...", 900, "glitch", 35);
+                    setTimeout(() => input.disabled = true, 2100);
                 }
-            }, 1200);
+            }, 7200);
 
             return;
         }
 
         if (value === "OSIRIS") {
-            typeLine("UNKNOWN ENTITY");
-            typeLine("Origin undefined");
+            delayedLine("ENTITY FILE PARTIALLY RESTORED.", 300);
+            delayedLine("Name: OSIRIS", 800);
+            delayedLine("Origin: UNKNOWN", 1300);
+            delayedLine("Kindness record: origin may never be recovered.", 2100);
+            delayedLine("White Death note: possible manufactured nature.", 3000, "dim");
+            delayedLine("A1 conclusion: incomplete thing. still dangerous.", 3900);
             return;
         }
 
         if (value === "GREED") {
-            typeLine("ARCHIVE ERROR");
-            typeLine("Data erased");
+            delayedLine("ARCHIVE INDEX FOUND.", 300);
+            delayedLine("Owner: THE GREED", 800);
+            delayedLine("Contents: contradictions, forbidden history, original state records.", 1700);
+            delayedLine("Archive status: destroyed.", 2800, "glitch");
+            delayedLine("Responsible order: KINDNESS.", 3600);
+            delayedLine("A1 note: truth preserved is still a weapon.", 4600, "dim");
             return;
         }
 
         typeLine("ACCESS DENIED");
     }
 });
+
+function startEndoscopy() {
+    const container = document.getElementById("endoContainer");
+    container.innerHTML = "";
+
+    let speed = 900;
+    let spawned = 0;
+
+    function spawnImage() {
+        const img = document.createElement("img");
+        img.src = "m.png";
+        img.className = "endo-img";
+
+        img.style.left = Math.random() * (window.innerWidth - 180) + "px";
+        img.style.top = Math.random() * (window.innerHeight - 180) + "px";
+
+        container.appendChild(img);
+
+        spawned++;
+        speed *= 0.82;
+        if (speed < 35) speed = 35;
+
+        if (spawned < 120) {
+            setTimeout(spawnImage, speed);
+        }
+    }
+
+    spawnImage();
+}
 
 function fileLine(name, cls = "") {
     return `<div class="line ${cls}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
