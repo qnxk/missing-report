@@ -33,7 +33,6 @@ body::after {
 
 #terminal {
     padding: 20px;
-    position: relative;
 }
 
 .line {
@@ -41,7 +40,6 @@ body::after {
     color: white;
     font-size: 18px;
     white-space: pre;
-    cursor: pointer;
 }
 
 .line::before,
@@ -50,106 +48,59 @@ body::after {
     position: absolute;
     left: 0;
     top: 0;
-    pointer-events: none;
 }
 
 .line::before {
     color: red;
     opacity: 0.3;
-    transform: translate(2px, 0);
+    transform: translate(2px,0);
 }
 
 .line::after {
     color: cyan;
     opacity: 0.3;
-    transform: translate(-2px, 0);
+    transform: translate(-2px,0);
 }
 
 input {
     background: black;
     border: none;
     color: white;
-    font-family: inherit;
+    width: 100%;
     outline: none;
-    width: 100%;
-}
-
-#files, #fileViewer {
-    display: none;
-    padding: 20px;
-    color: white;
-}
-
-#videoContainer {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: black;
-    z-index: 900;
-}
-
-#exitBtn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: black;
-    color: white;
-    border: 1px solid red;
-    padding: 10px;
-    cursor: pointer;
-    z-index: 901;
-    font-family: inherit;
-}
-
-#videoContainer img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.red-file {
-    color: #ff0000;
-}
-
-.uncertain-file {
-    color: #d6a0a0;
 }
 
 .glitch {
-    color: #ff4444;
+    color:#ff4444;
     animation: glitch 0.1s infinite;
 }
 
-.dim {
-    color: #b8b8b8;
-}
-
 @keyframes glitch {
-    0% { transform: translate(0); }
-    50% { transform: translate(2px, -1px); }
-    100% { transform: translate(-2px, 1px); }
+    0% {transform:translate(0);}
+    50% {transform:translate(2px,-1px);}
+    100% {transform:translate(-2px,1px);}
 }
 
-#endoContainer {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 999;
+#videoContainer {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:black;
 }
 
-.endo-img {
-    position: absolute;
-    width: 180px;
-    animation: shake 0.08s infinite;
+#videoContainer img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
 
-@keyframes shake {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(3px, -3px) rotate(1deg); }
-    50% { transform: translate(-3px, 3px) rotate(-1deg); }
-    75% { transform: translate(3px, 3px) rotate(1deg); }
-    100% { transform: translate(0, 0) rotate(0deg); }
+#exitBtn {
+    position:absolute;
+    top:20px;
+    right:20px;
+    border:1px solid red;
+    padding:10px;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -158,15 +109,7 @@ input {
 
 <div id="terminal">
     <div id="output"></div>
-    <div class="line" data-text="> ">> <input id="input" autofocus></div>
-</div>
-
-<div id="files"></div>
-
-<div id="fileViewer">
-    <div class="line" onclick="backToFiles()" data-text="[BACK]">[BACK]</div>
-    <br>
-    <div id="fileContent"></div>
+    <div>> <input id="input" autofocus></div>
 </div>
 
 <div id="videoContainer">
@@ -174,263 +117,149 @@ input {
     <img id="simVideo" src="Sim_01.gif">
 </div>
 
-<div id="endoContainer"></div>
-
 <script>
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
+// файлы остаются
 const fileData = {
-    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPublic image: merciful and calm.\nInternal records suggest she ordered the destruction of ancient archives, scriptures, and forgotten history.\nShe believes the Collective Unconscious is too dangerous to be touched again.\nProtects people, but hides the truth from them.\nPossible motive: preservation through control.",
-
-    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nMaintains discipline through suppression.\nTreats rebellion attempts as training for soldiers.\nShows increasing aggression and loss of restraint.\nKindness stated his behavior no longer fits his Title.\nKnown to regenerate after fatal damage.\nThreat level remains high even among allied forces.",
-
-    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nServes the Church with absolute devotion.\nBelieves fear creates devotion.\nSupports public demonstrations of divine power despite civil unrest.\nShows strong loyalty toward Kindness.\nConsiders heretics and infernal beings beneath Celestials.\nCombat response: immediate execution by flame.",
-
-    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nServes beside Kindness as her trusted helper.\nStill holds onto duty, loyalty, and old heroic ideals.\nMemory appears fragmented, but emotional response remains stable.\nSenses corruption in The Flawed Virtue.\nQuestioned whether the Virtues are changing.\nStill chooses to stay with Kindness.",
-
-    "The Greed.txt": "THE GREED\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nFormer keeper of forbidden archives.\nCollected records about the world's original state.\nArchive contained contradictions, ancient history, and erased knowledge.\nMost records were destroyed by order of Kindness.\nShows hatred toward those who burned his work.\nMotivation: preservation of truth, ownership of knowledge.",
-
-    "The Wrath.txt": "THE WRATH\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nDriven by revenge against Patience.\nRemembers victims of divine judgment and refuses to forgive.\nBelieves Patience's judgment is blind.\nHas killed Patience multiple times, but failed to make it permanent.\nEmotional instability detected.\nCombat pattern: direct assault, high aggression.",
-
-    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nFormer human.\nRecords mention desertion, crime, and attempted execution by hanging.\nCurrent condition: barely human.\nSpeech degraded into coughing, rustling, and gurgling sounds.\nStill recognized by some old allies and enemies.\nPossible remaining memory fragments detected.",
-
-    "Osiris.txt": "OSIRIS\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nOrigin unknown.\nCommunication minimal.\nKindness claims his origins may never be recovered.\nWhite Death suspects a manufactured or artificial nature.\nNo confirmed creator.\nContainment status uncertain.",
-
-    "The Fool.txt": "THE FOOL\n\nAffiliation: Heretic\nStatus: Anomaly\n\nLog:\nLinked to ancient powers and the Old Deus.\nKindness recognizes him from the Era of Chaos.\nThe Fool denies all direct claims.\nDisplays knowledge of extinct beings and forgotten technology.\nRecognized White Death's railgun model.\nBehavior pattern: calm, mocking, unpredictable.\nThreat level: unknown.",
-
-    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment Recovered\n\nLog:\nOnly one severed arm has been recovered.\nNo head, torso, or full body confirmed.\nThe limb constantly emits electrical discharge.\nMovement sometimes occurs without external input.\nSignal pulses are irregular.\nDo not touch without insulation.",
-
-    "The Neither.txt": "THE NEITHER\n\nAffiliation: Unknown At This Time\nStatus: Under Suspicion\n\nLog:\nRecorded statements show growing resentment toward the Virtues.\nHe questioned why a weakling could awaken his true self while he could not.\nHe repeatedly asked what went wrong and searched for answers about his origin.\nReports mention the united front falling while the Virtues remained inactive.\nPatience requested distance from him.\nWrath called him a mortal challenging a Celestial.\nPrototype A1 has no confirmed betrayal record yet.\nSuspicion level: increasing.",
-
-    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nAudio file damaged.\nDecoding failed.\nRecovered fragments contain static, breathing, and repeated signal spikes.\nSource unknown.\nPlayback not recommended."
+    "Kindness.txt": "KINDNESS...",
+    "Patience.txt": "PATIENCE...",
+    "Uriel.log": "URIEL...",
+    "TFH.txt": "TFH...",
+    "The Greed.txt": "GREED...",
+    "The Wrath.txt": "WRATH...",
+    "The Deadman.txt": "DEADMAN...",
+    "Osiris.txt": "OSIRIS...",
+    "The Fool.txt": "FOOL...",
+    "PrototypeA2.txt": "A2...",
+    "The Neither.txt": "NEITHER...",
+    "Last Signal.wav": "SIGNAL..."
 };
 
-function typeLine(text, cls = "", delay = 15) {
-    return new Promise(resolve => {
-        let i = 0;
-        const div = document.createElement("div");
-        div.className = "line " + cls;
-        output.appendChild(div);
-
-        function typing() {
-            if (i < text.length) {
-                div.textContent += text[i];
-                div.setAttribute("data-text", div.textContent);
-                i++;
-                setTimeout(typing, delay);
-            } else {
-                resolve();
-            }
-        }
-
-        typing();
-    });
+function typeLine(text, cls=""){
+    const d=document.createElement("div");
+    d.className="line "+cls;
+    d.textContent=text;
+    d.setAttribute("data-text",text);
+    output.appendChild(d);
 }
 
-function delayedLine(text, time, cls = "", delay = 15) {
-    setTimeout(() => typeLine(text, cls, delay), time);
+function delayed(t, time, cls=""){
+    setTimeout(()=>typeLine(t,cls),time);
 }
 
 typeLine("ENTER CODE:");
 
-input.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        const value = input.value.toUpperCase().trim();
-        input.value = "";
+input.addEventListener("keydown", e=>{
+if(e.key==="Enter"){
+let v=input.value.toUpperCase().trim();
+input.value="";
+typeLine("> "+v);
 
-        typeLine("> " + value);
+// ABA
+if(v===atob("QUJB")){
+    openVideo();
+    return;
+}
 
-        if (value === "PROTOTYPEA1") {
-            openFiles();
-            return;
+// COMMANDER
+if(v==="COMMANDER"){
+    delayed("AUTHORITY DETECTED",300);
+    delayed("Squad Seven, advance.",800);
+    delayed("Move out.",1400);
+    return;
+}
+
+// FLAWED
+if(v==="THEFLAWEDVIRTUE"){
+    delayed("CORRUPTION TRACE",300,"glitch");
+    delayed("Old name: THE NEITHER",900);
+    delayed("New: THE FLAWED VIRTUE",1500);
+    delayed("Something is wrong.",2200);
+    return;
+}
+
+// ENDOSCOPY
+if(v==="ENDOSCOPY"){
+    startEndoscopy();
+    return;
+}
+
+// WHITE DEATH
+if(v==="WHITEDEATH"){
+    delayed("HOSTILE ENTITY",200,"glitch");
+    delayed("WHITE DEATH",800,"glitch");
+    delayed("HERETIC",1400,"glitch");
+    delayed("Limiter failed.",2000,"glitch");
+    delayed("HUNT INITIATED.",2600,"glitch");
+    delayed("FIND.",3200,"glitch");
+    delayed("BREAK.",3800,"glitch");
+
+    setTimeout(()=>{
+        if(Math.random()<0.6){
+            typeLine("CONNECTION LOST","glitch");
+            input.disabled=true;
         }
+    },4500);
+    return;
+}
 
-        if (value === atob("QUJB")) {
-            openVideo();
-            return;
-        }
+// OSIRIS
+if(v==="OSIRIS"){
+    delayed("UNKNOWN ENTITY",300);
+    delayed("Origin undefined",900);
+    delayed("Incomplete",1500);
+    return;
+}
 
-        if (value === "COMMANDER") {
-            delayedLine("AUTHORITY SIGNATURE DETECTED.", 300);
-            delayedLine("Identity: THE SUPREME COMMANDER", 800);
-            delayedLine("Order chain confirmed.", 1300);
-            delayedLine("Squad Seven, advance on the heretic position.", 1900);
-            delayedLine("Cannon Fodder response corrupted.", 2600, "dim");
-            delayedLine("Close enough. Move out.", 3300);
-            return;
-        }
+// GREED
+if(v==="GREED"){
+    delayed("ARCHIVE FOUND",300);
+    delayed("DATA ERASED",900,"glitch");
+    delayed("TRUTH LOST",1500);
+    return;
+}
 
-        if (value === "THEFLAWEDVIRTUE") {
-            delayedLine("WARNING: CORRUPTION TRACE FOUND.", 300, "glitch");
-            delayedLine("Old title detected: THE NEITHER", 900, "uncertain-file");
-            delayedLine("New title unstable: THE FLAWED VIRTUE", 1500, "uncertain-file");
-            delayedLine("Question recovered: What was sealed from me?", 2300);
-            delayedLine("Suspicion: betrayal not confirmed.", 3100, "dim");
-            delayedLine("A1 NOTE: monitor closely.", 3900, "dim");
-            return;
-        }
-
-        if (value === "ENDOSCOPY") {
-            startEndoscopy();
-            return;
-        }
-
-        if (value === "WHITEDEATH") {
-            delayedLine("HOSTILE ENTITY DETECTED.", 200, "glitch");
-            delayedLine("Designation: WHITE DEATH", 700, "glitch");
-            delayedLine("Heretic class confirmed.", 1200, "glitch");
-            delayedLine("Weapon familiarity: ancient rail systems.", 1900, "dim");
-            delayedLine("Recorded intent: eradication of abominations.", 2600);
-            delayedLine("Prototype A1 emotional limiter: FAILED.", 3400, "glitch");
-            delayedLine("New directive generated:", 4200, "glitch");
-            delayedLine("FIND WHITE DEATH.", 5000, "glitch");
-            delayedLine("BREAK WHITE DEATH.", 5700, "glitch");
-            delayedLine("RETURN WITH CONFIRMATION.", 6400, "glitch");
-
-            setTimeout(() => {
-                if (Math.random() < 0.6) {
-                    typeLine("SIGNAL INSTABILITY DETECTED.", "glitch");
-                    delayedLine("CONNECTION LOST...", 900, "glitch", 35);
-                    setTimeout(() => input.disabled = true, 2100);
-                }
-            }, 7200);
-
-            return;
-        }
-
-        if (value === "OSIRIS") {
-            delayedLine("ENTITY FILE PARTIALLY RESTORED.", 300);
-            delayedLine("Name: OSIRIS", 800);
-            delayedLine("Origin: UNKNOWN", 1300);
-            delayedLine("Kindness record: origin may never be recovered.", 2100);
-            delayedLine("White Death note: possible manufactured nature.", 3000, "dim");
-            delayedLine("A1 conclusion: incomplete thing. still dangerous.", 3900);
-            return;
-        }
-
-        if (value === "GREED") {
-            delayedLine("ARCHIVE INDEX FOUND.", 300);
-            delayedLine("Owner: THE GREED", 800);
-            delayedLine("Contents: contradictions, forbidden history, original state records.", 1700);
-            delayedLine("Archive status: destroyed.", 2800, "glitch");
-            delayedLine("Responsible order: KINDNESS.", 3600);
-            delayedLine("A1 note: truth preserved is still a weapon.", 4600, "dim");
-            return;
-        }
-
-        typeLine("ACCESS DENIED");
-    }
+typeLine("ACCESS DENIED");
+}
 });
 
-function openVideo() {
-    document.getElementById("terminal").style.display = "none";
-    document.getElementById("files").style.display = "none";
-    document.getElementById("fileViewer").style.display = "none";
-
-    const video = document.getElementById("videoContainer");
-    const img = document.getElementById("simVideo");
-
-    img.src = "Sim_01.gif?t=" + Date.now();
-    video.style.display = "block";
+// VIDEO
+function openVideo(){
+document.getElementById("terminal").style.display="none";
+let v=document.getElementById("videoContainer");
+document.getElementById("simVideo").src="Sim_01.gif?"+Date.now();
+v.style.display="block";
 }
 
-function exitVideo() {
-    document.getElementById("videoContainer").style.display = "none";
-    document.getElementById("terminal").style.display = "block";
-    input.focus();
+function exitVideo(){
+document.getElementById("videoContainer").style.display="none";
+document.getElementById("terminal").style.display="block";
+input.focus();
 }
 
-function startEndoscopy() {
-    const container = document.getElementById("endoContainer");
-    container.innerHTML = "";
+// ENDOSCOPY
+function startEndoscopy(){
+let speed=800;
 
-    let speed = 900;
-    let spawned = 0;
+function spawn(){
+let img=document.createElement("img");
+img.src="m.png";
+img.style.position="fixed";
+img.style.width="180px";
+img.style.left=Math.random()*window.innerWidth+"px";
+img.style.top=Math.random()*window.innerHeight+"px";
+img.style.animation="glitch 0.1s infinite";
+document.body.appendChild(img);
 
-    function spawnImage() {
-        const img = document.createElement("img");
-        img.src = "m.png";
-        img.className = "endo-img";
+speed*=0.8;
+if(speed<40) speed=40;
 
-        img.style.left = Math.random() * (window.innerWidth - 180) + "px";
-        img.style.top = Math.random() * (window.innerHeight - 180) + "px";
-
-        container.appendChild(img);
-
-        spawned++;
-        speed *= 0.82;
-        if (speed < 35) speed = 35;
-
-        if (spawned < 120) {
-            setTimeout(spawnImage, speed);
-        }
-    }
-
-    spawnImage();
+setTimeout(spawn,speed);
 }
 
-function fileLine(name, cls = "") {
-    return `<div class="line ${cls}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
-}
-
-function neitherLine() {
-    return `<div class="line uncertain-file" onclick="openFile('The Neither.txt')" data-text="> The Neither.txt" onmouseenter="this.textContent='> The Flawed Virtue.txt';this.setAttribute('data-text','> The Flawed Virtue.txt')" onmouseleave="this.textContent='> The Neither.txt';this.setAttribute('data-text','> The Neither.txt')">> The Neither.txt</div>`;
-}
-
-function openFiles() {
-    document.getElementById("terminal").style.display = "none";
-
-    const files = document.getElementById("files");
-    files.style.display = "block";
-
-    files.innerHTML = `
-<div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div><br>
-
-<div class="line" data-text="----- ALLIES -----">----- ALLIES -----</div>
-${fileLine("Kindness.txt")}
-${fileLine("Patience.txt")}
-${fileLine("Uriel.log")}
-${fileLine("TFH.txt")}
-
-<br>
-
-<div class="line red-file" data-text="----- HERETICS -----">----- HERETICS -----</div>
-${fileLine("The Greed.txt", "red-file")}
-${fileLine("The Wrath.txt", "red-file")}
-${fileLine("The Deadman.txt", "red-file")}
-${fileLine("Osiris.txt", "red-file")}
-${fileLine("The Fool.txt", "red-file")}
-
-<br>
-
-<div class="line" data-text="----- OTHER -----">----- OTHER -----</div>
-${fileLine("PrototypeA2.txt")}
-${neitherLine()}
-${fileLine("Last Signal.wav")}
-`;
-}
-
-function openFile(name) {
-    document.getElementById("files").style.display = "none";
-    document.getElementById("fileViewer").style.display = "block";
-
-    const content = fileData[name] || "EMPTY FILE";
-    const container = document.getElementById("fileContent");
-    container.innerHTML = "";
-
-    content.split("\n").forEach(lineText => {
-        const div = document.createElement("div");
-        div.className = "line";
-        div.textContent = lineText;
-        div.setAttribute("data-text", lineText);
-        container.appendChild(div);
-    });
-}
-
-function backToFiles() {
-    document.getElementById("fileViewer").style.display = "none";
-    document.getElementById("files").style.display = "block";
+spawn();
 }
 </script>
 
