@@ -121,6 +121,10 @@ img {
 .red-file {
     color: #ff0000;
 }
+
+.uncertain-file {
+    color: #d6a0a0;
+}
 </style>
 </head>
 
@@ -153,19 +157,29 @@ const output = document.getElementById("output");
 const input = document.getElementById("input");
 
 const fileData = {
-    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nMaintains control through suppression of knowledge.",
-    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nUses rebellion as training.",
-    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nBelieves fear creates devotion.",
-    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nFragmented memory. Still loyal.",
+    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPublic image: merciful and calm.\nInternal records suggest she ordered the destruction of ancient archives, scriptures, and forgotten history.\nShe believes the Collective Unconscious is too dangerous to be touched again.\nProtects people, but hides the truth from them.\nPossible motive: preservation through control.",
 
-    "The Greed.txt": "THE GREED\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nKeeper of forbidden knowledge.",
-    "The Wrath.txt": "THE WRATH\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nDriven by revenge.",
-    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nBarely human.",
-    "Osiris.txt": "OSIRIS\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nUnknown origin.",
-    "The Fool.txt": "THE FOOL\n\nAffiliation: Heretic\nStatus: Anomaly\n\nLog:\nUnpredictable.",
+    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nMaintains discipline through suppression.\nTreats rebellion attempts as training for soldiers.\nShows increasing aggression and loss of restraint.\nKindness stated his behavior no longer fits his Title.\nKnown to regenerate after fatal damage.\nThreat level remains high even among allied forces.",
 
-    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment\n\nLog:\nSevered arm. Electrical discharge.",
-    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nERROR"
+    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nServes the Church with absolute devotion.\nBelieves fear creates devotion.\nSupports public demonstrations of divine power despite civil unrest.\nShows strong loyalty toward Kindness.\nConsiders heretics and infernal beings beneath Celestials.\nCombat response: immediate execution by flame.",
+
+    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nServes beside Kindness as her trusted helper.\nStill holds onto duty, loyalty, and old heroic ideals.\nMemory appears fragmented, but emotional response remains stable.\nSenses corruption in The Flawed Virtue.\nQuestioned whether the Virtues are changing.\nStill chooses to stay with Kindness.",
+
+    "The Greed.txt": "THE GREED\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nFormer keeper of forbidden archives.\nCollected records about the world's original state.\nArchive contained contradictions, ancient history, and erased knowledge.\nMost records were destroyed by order of Kindness.\nShows hatred toward those who burned his work.\nMotivation: preservation of truth, ownership of knowledge.",
+
+    "The Wrath.txt": "THE WRATH\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nDriven by revenge against Patience.\nRemembers victims of divine judgment and refuses to forgive.\nBelieves Patience's judgment is blind.\nHas killed Patience multiple times, but failed to make it permanent.\nEmotional instability detected.\nCombat pattern: direct assault, high aggression.",
+
+    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nFormer human.\nRecords mention desertion, crime, and attempted execution by hanging.\nCurrent condition: barely human.\nSpeech degraded into coughing, rustling, and gurgling sounds.\nStill recognized by some old allies and enemies.\nPossible remaining memory fragments detected.",
+
+    "Osiris.txt": "OSIRIS\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nOrigin unknown.\nCommunication minimal.\nKindness claims his origins may never be recovered.\nWhite Death suspects a manufactured or artificial nature.\nNo confirmed creator.\nContainment status uncertain.",
+
+    "The Fool.txt": "THE FOOL\n\nAffiliation: Heretic\nStatus: Anomaly\n\nLog:\nLinked to ancient powers and the Old Deus.\nKindness recognizes him from the Era of Chaos.\nThe Fool denies all direct claims.\nDisplays knowledge of extinct beings and forgotten technology.\nRecognized White Death's railgun model.\nBehavior pattern: calm, mocking, unpredictable.\nThreat level: unknown.",
+
+    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment Recovered\n\nLog:\nOnly one severed arm has been recovered.\nNo head, torso, or full body confirmed.\nThe limb constantly emits electrical discharge.\nMovement sometimes occurs without external input.\nSignal pulses are irregular.\nDo not touch without insulation.",
+
+    "The Neither.txt": "THE NEITHER\n\nAffiliation: Unknown At This Time\nStatus: Under Suspicion\n\nLog:\nRecorded statements show growing resentment toward the Virtues.\nHe questioned why a weakling could awaken his true self while he could not.\nHe repeatedly asked what went wrong and searched for answers about his origin.\nReports mention the united front falling while the Virtues remained inactive.\nPatience requested distance from him.\nWrath called him a mortal challenging a Celestial.\nPrototype A1 has no confirmed betrayal record yet.\nSuspicion level: increasing.",
+
+    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nAudio file damaged.\nDecoding failed.\nRecovered fragments contain static, breathing, and repeated signal spikes.\nSource unknown.\nPlayback not recommended."
 };
 
 function typeLine(text, delay = 15) {
@@ -209,6 +223,21 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
+function makeFileLine(name, className = "") {
+    return `<div class="line ${className}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
+}
+
+function makeHoverFileLine(realName, hoverName, className = "") {
+    return `
+        <div class="line ${className}"
+            onclick="openFile('${realName}')"
+            data-text="> ${realName}"
+            onmouseenter="this.textContent='> ${hoverName}'; this.setAttribute('data-text', '> ${hoverName}')"
+            onmouseleave="this.textContent='> ${realName}'; this.setAttribute('data-text', '> ${realName}')"
+        >> ${realName}</div>
+    `;
+}
+
 function openFiles() {
     document.getElementById("terminal").style.display = "none";
     const files = document.getElementById("files");
@@ -216,23 +245,25 @@ function openFiles() {
 
     const allies = ["Kindness.txt","Patience.txt","Uriel.log","TFH.txt"];
     const heretics = ["The Greed.txt","The Wrath.txt","The Deadman.txt","Osiris.txt","The Fool.txt"];
-    const others = ["PrototypeA2.txt","Last Signal.wav"];
+    const others = ["PrototypeA2.txt","The Neither.txt","Last Signal.wav"];
 
     files.innerHTML = `
-        <div class="line">ACCESS GRANTED</div><br>
+        <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div><br>
 
-        <div class="line">----- ALLIES -----</div>
-        ${allies.map(n => `<div class="line" onclick="openFile('${n}')">> ${n}</div>`).join("")}
-
-        <br>
-
-        <div class="line red-file">----- HERETICS -----</div>
-        ${heretics.map(n => `<div class="line red-file" onclick="openFile('${n}')">> ${n}</div>`).join("")}
+        <div class="line" data-text="----- ALLIES -----">----- ALLIES -----</div>
+        ${allies.map(n => makeFileLine(n)).join("")}
 
         <br>
 
-        <div class="line">----- OTHER -----</div>
-        ${others.map(n => `<div class="line" onclick="openFile('${n}')">> ${n}</div>`).join("")}
+        <div class="line red-file" data-text="----- HERETICS -----">----- HERETICS -----</div>
+        ${heretics.map(n => makeFileLine(n, "red-file")).join("")}
+
+        <br>
+
+        <div class="line" data-text="----- OTHER -----">----- OTHER -----</div>
+        ${makeFileLine("PrototypeA2.txt")}
+        ${makeHoverFileLine("The Neither.txt", "The Flawed Virtue.txt", "uncertain-file")}
+        ${makeFileLine("Last Signal.wav")}
     `;
 }
 
