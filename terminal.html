@@ -170,7 +170,7 @@ img {
 
 <div id="videoContainer">
     <button id="exitBtn" onclick="exitVideo()">EXIT</button>
-    <img src="Sim_01.gif?t=<?=Date.now()?>">
+    <img src="Sim_01.gif">
 </div>
 
 <div id="rain"></div>
@@ -179,28 +179,25 @@ img {
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
+// ЧЁТКАЯ СОРТИРОВКА
 const fileData = {
-    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nKindness remains gentle on the surface, but records suggest she ordered the destruction of old archives. She believes the past and the Collective Unconscious are too dangerous to be used again.",
 
-    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nPatience treats rebellion as training. Suppression keeps soldiers sharp, but his methods have become harsher. Even Kindness believes his title no longer fits his behavior.",
+    // ===== VIRTUES =====
+    "Kindness.txt": "KINDNESS\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nMaintains control through selective suppression of knowledge.",
+    "Patience.txt": "PATIENCE\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nViews rebellion as necessary for discipline.",
+    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nBelieves fear strengthens faith.",
+    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nRemembers fragments. Still loyal.",
 
-    "Uriel.log": "URIEL\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nUriel serves the Church with absolute devotion. He believes fear creates devotion and that divine power must be demonstrated, even if it causes unrest.",
+    // ===== HERETICS =====
+    "The Greed.txt": "THE GREED\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nKeeper of forbidden knowledge.",
+    "The Wrath.txt": "THE WRATH\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nDriven by revenge.",
+    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nBarely human.",
+    "Osiris.txt": "OSIRIS\n\nAffiliation: Heretic\nStatus: Active\n\nLog:\nOrigin unknown.",
+    "The Fool.txt": "THE FOOL\n\nAffiliation: Heretic\nStatus: Anomaly\n\nLog:\nUnpredictable.",
 
-    "The Greed.txt": "THE GREED\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nGreed was the keeper of archives and forbidden records. His collection contained contradictions and traces of the world's original state, but much of it was destroyed by order of Kindness.",
-
-    "The Wrath.txt": "THE WRATH\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nWrath carries hatred toward Patience for those killed under divine judgment. He seeks revenge, but Patience still sees him as unfinished and beneath the mark.",
-
-    "TFH.txt": "THE FORGOTTEN HERO\n\nAffiliation: Virtues\nStatus: Active\n\nLog:\nTFH serves beside Kindness and still holds onto duty, loyalty, and doubt. He senses corruption in others, especially The Flawed Virtue, but does not fully understand the force pulling them together.",
-
-    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment Recovered\n\nLog:\nOnly one severed arm has been recovered. The limb produces constant electrical discharge. No full body confirmed.",
-
-    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nERROR: Cannot decode audio.",
-
-    "The Deadman.txt": "THE DEADMAN\n\nAffiliation: Rogue\nStatus: Active\n\nLog:\nA former man turned into something barely human. Records mention desertion, crime, execution attempts, and repeated references to hanging. Vocal response is mostly coughing and gurgling.",
-
-    "Osiris.txt": "OSIRIS\n\nAffiliation: Unknown\nStatus: Active\n\nLog:\nOsiris shows no clear speech pattern. Kindness claims his origin may be impossible to recover. White Death suspects a shared artificial or manufactured nature.",
-
-    "The Fool.txt": "THE FOOL\n\nAffiliation: Unknown\nStatus: Anomaly\n\nLog:\nThe Fool appears connected to ancient powers and the Old Deus. Kindness recognizes him as something from the Era of Chaos, while The Fool denies it. He shows knowledge of forgotten technology and extinct beings."
+    // ===== OTHER =====
+    "PrototypeA2.txt": "PROTOTYPE A2\n\nAffiliation: Unknown\nStatus: Fragment\n\nLog:\nSevered arm. Electrical discharge.",
+    "Last Signal.wav": "LAST SIGNAL\n\nAffiliation: Unknown\nStatus: Corrupted\n\nLog:\nERROR"
 };
 
 let attempts = 0;
@@ -234,46 +231,22 @@ input.addEventListener("keydown", function(e) {
 
         typeLine("> " + value);
 
-        if (["THEFLAWEDVIRTUE","ENDOSCOPY","COMMANDER"].includes(value)) {
-            for (let i = 1; i <= 5; i++) {
-                typeLine("test" + i);
-            }
-            return;
-        }
-
         if (value === atob("QUJB")) {
             document.getElementById("terminal").style.display = "none";
             document.getElementById("videoContainer").style.display = "block";
             return;
         }
 
-        if (value === "CANNONFODDER") {
-            document.getElementById("terminal").style.display = "none";
-            startRain();
-            return;
-        }
-
         if (value === "PROTOTYPEA1") {
             document.getElementById("terminal").style.display = "none";
-
             const files = document.getElementById("files");
             files.style.display = "block";
 
             files.innerHTML = `
-                <div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
-                <br>
-                <div id="logoutBtn" class="line" onclick="logout()" data-text="[LOGOUT]">[LOGOUT]</div>
-                <br>
+                <div class="line">ACCESS GRANTED</div><br>
                 ${Object.keys(fileData).map(name => {
-                    const isNew = [
-                        "The Deadman.txt",
-                        "Osiris.txt",
-                        "The Greed.txt",
-                        "The Wrath.txt",
-                        "The Fool.txt"
-                    ].includes(name);
-
-                    return `<div class="line ${isNew ? 'red-file' : ''}" onclick="openFile('${name}')" data-text="> ${name}">> ${name}</div>`;
+                    const isRed = name.startsWith("The ") && !name.includes("TFH") && !name.includes("Prototype") && !name.includes("Last");
+                    return `<div class="line ${isRed ? 'red-file' : ''}" onclick="openFile('${name}')">> ${name}</div>`;
                 }).join("")}
             `;
             return;
@@ -281,10 +254,6 @@ input.addEventListener("keydown", function(e) {
 
         attempts++;
         typeLine("ACCESS DENIED");
-
-        if (attempts >= 3) {
-            typeLine("YOUR LOCATION HAS BEEN LOGGED");
-        }
     }
 });
 
@@ -314,39 +283,6 @@ function backToFiles() {
 function exitVideo() {
     document.getElementById("videoContainer").style.display = "none";
     document.getElementById("terminal").style.display = "block";
-}
-
-function logout() {
-    document.getElementById("files").style.display = "none";
-    document.getElementById("terminal").style.display = "block";
-}
-
-function startRain() { 
-    const rain = document.getElementById("rain");
-    rain.style.display = "block";
-
-    let text = "LIVE AGAIN LIVE AGAIN DIES STOP ";
-    let fullText = "";
-
-    function flood() {
-        fullText += text.repeat(10);
-        rain.innerText = fullText;
-
-        if (fullText.length > 20000) {
-            setTimeout(() => {
-                window.open("", "_self");
-                window.close();
-                document.body.innerHTML = "";
-                document.body.style.background = "black";
-                document.title = "";
-            }, 1000);
-            return;
-        }
-
-        setTimeout(flood, 20);
-    }
-
-    flood();
 }
 </script>
 
