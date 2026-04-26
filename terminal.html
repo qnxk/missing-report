@@ -28,12 +28,6 @@ body::after {
         rgba(0,0,0,0) 4px
     );
     pointer-events: none;
-    z-index: 1000;
-}
-
-#terminal {
-    padding: 20px;
-    position: relative;
 }
 
 .line {
@@ -41,7 +35,6 @@ body::after {
     color: white;
     font-size: 18px;
     white-space: pre;
-    cursor: pointer;
 }
 
 .line::before,
@@ -56,86 +49,42 @@ body::after {
 .line::before {
     color: red;
     opacity: 0.3;
-    transform: translate(2px, 0);
+    transform: translate(2px,0);
 }
 
 .line::after {
     color: cyan;
     opacity: 0.3;
-    transform: translate(-2px, 0);
+    transform: translate(-2px,0);
 }
 
 input {
     background: black;
     border: none;
     color: white;
-    font-family: inherit;
+    width: 100%;
     outline: none;
-    width: 100%;
 }
 
-#files, #fileViewer {
-    display: none;
-    padding: 20px;
-    color: white;
-}
-
-#videoContainer {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: black;
-    z-index: 900;
-}
-
-#exitBtn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: black;
-    color: white;
-    border: 1px solid red;
-    padding: 10px;
-    cursor: pointer;
-}
-
-#videoContainer img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+#files, #fileViewer { display:none; padding:20px; }
+#videoContainer { display:none; position:fixed; inset:0; background:black; }
 
 .red-file { color:#ff0000; }
-.uncertain-file { color:#d6a0a0; }
-
-.glitch {
-    color:#ff4444;
-    animation: glitch 0.1s infinite;
-}
+.glitch { color:#ff4444; animation: glitch 0.1s infinite; }
 
 @keyframes glitch {
-    0% { transform: translate(0); }
-    50% { transform: translate(2px,-1px); }
-    100% { transform: translate(-2px,1px); }
+    0%{transform:translate(0)}
+    50%{transform:translate(2px,-1px)}
+    100%{transform:translate(-2px,1px)}
 }
 
-#endoContainer {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 999;
-}
-
-.endo-img {
-    position: absolute;
-    width: 180px;
-    animation: shake 0.08s infinite;
-}
+#endoContainer { position:fixed; inset:0; pointer-events:none; }
+.endo-img { position:absolute; width:180px; animation:shake .08s infinite; }
 
 @keyframes shake {
-    0% { transform: translate(0); }
-    50% { transform: translate(4px,-3px); }
-    100% { transform: translate(-4px,3px); }
+    0%{transform:translate(0)}
+    50%{transform:translate(4px,-3px)}
+    100%{transform:translate(-4px,3px)}
 }
 </style>
 </head>
@@ -143,153 +92,132 @@ input {
 <body>
 
 <div id="terminal">
-    <div id="output"></div>
-    <div class="line" data-text="> ">> <input id="input" autofocus></div>
+<div id="output"></div>
+<div class="line" data-text="> ">> <input id="input"></div>
 </div>
 
 <div id="files"></div>
 
 <div id="fileViewer">
-    <div class="line" onclick="backToFiles()" data-text="[BACK]">[BACK]</div>
-    <br>
-    <div id="fileContent"></div>
+<div onclick="back()">[BACK]</div>
+<div id="fileContent"></div>
 </div>
 
 <div id="videoContainer">
-    <button id="exitBtn" onclick="exitVideo()">EXIT</button>
-    <img id="simVideo" src="Sim_01.gif">
+<button onclick="exitVideo()">EXIT</button>
+<img src="Sim_01.gif">
 </div>
 
 <div id="endoContainer"></div>
 
 <script>
-const output = document.getElementById("output");
-const input = document.getElementById("input");
+const output=document.getElementById("output");
+const input=document.getElementById("input");
 
-const fileData = {
-"KINDNESS.txt": `ID: V-02
-Affiliation: Virtues
-Status: Active
-
-Summary:
-Outward benevolence. Private large-scale data suppression.`,
-
-"PATIENCE.txt": `ID: V-03
-Affiliation: Virtues
-Status: Active
-
-Summary:
-Brutal suppression. Instability rising.`,
-
-"URIEL.txt": `ID: C-01
-Affiliation: Church
-Status: Active
-
-Summary:
-Devotion enforced through fear.`,
-
-"FORGOTTENHERO.txt": `ID: E-00
-Affiliation: Church
-Status: Active
-
-Summary:
-Fragmented Hero. Loyal.`,
-
-"GREED.txt": `ID: S-01
-Affiliation: Heretics
-Status: Active
-
-Summary:
-Archivist. Seeks truth.`,
-
-"WRATH.txt": `ID: S-02
-Affiliation: Heretics
-Status: Unknown
-
-Summary:
-Extreme hostility.`,
-
-"DEADMAN.txt": `ID: H-03
-Affiliation: Heretics
-Status: Unknown
-
-Summary:
-Degraded human corpse.`,
-
-"OSIRIS.txt": `ID: D-00
-Affiliation: Unknown
-Status: Active
-
-Summary:
-Unknown origin.`,
-
-"FOOL.txt": `ID: ⛶
-Affiliation: Unknown
-Status: Anomaly
-
-Summary:
-Unpredictable.`,
-
-"PROTOTYPEA2.txt": `ID: X-00
-Affiliation: Unknown
-Status: Fragment
-
-Summary:
-Recovered arm. A2.`,
-
-"NEITHER.txt": `ID: X-01
-Affiliation: Unknown
-Status: Watching
-
-Summary:
-Instability detected.`,
-
-"Last Signal.wav": `Corrupted signal`
-};
-
-function typeLine(text, cls=""){
-    const div=document.createElement("div");
-    div.className="line "+cls;
-    div.textContent=text;
-    div.setAttribute("data-text",text);
-    output.appendChild(div);
+function line(t,c=""){
+let d=document.createElement("div");
+d.className="line "+c;
+d.textContent=t;
+d.setAttribute("data-text",t);
+output.appendChild(d);
 }
 
-typeLine("ENTER CODE:");
+line("ENTER CODE:");
 
-input.addEventListener("keydown", e=>{
+input.addEventListener("keydown",e=>{
 if(e.key==="Enter"){
-let v=input.value.toUpperCase();
+let v=input.value.toUpperCase().trim();
 input.value="";
-typeLine("> "+v);
+line("> "+v);
+
+// КОДЫ
 
 if(v==="ARCHIVE"){openFiles();return;}
 
 if(v===atob("QUJB")){
-    openVideo();return;
+document.getElementById("terminal").style.display="none";
+document.getElementById("videoContainer").style.display="block";
+return;
+}
+
+if(v==="WHITEDEATH"){
+line("HOSTILE ENTITY DETECTED","glitch");
+line("PURSUIT INITIATED","glitch");
+return;
 }
 
 if(v==="ENDOSCOPY"){startEndoscopy();return;}
 
-if(v==="WHITEDEATH"){
-    typeLine("HOSTILE ENTITY","glitch");
-    typeLine("PURSUIT INITIATED","glitch");
-    return;
-}
-
-typeLine("ACCESS DENIED");
+line("ACCESS DENIED");
 }
 });
 
-function openVideo(){
+// ФАЙЛЫ
+
+const fileData={
+"KINDNESS.txt":`V-02 Virtue. Controls information. Destroys history.`,
+"PATIENCE.txt":`V-03 Virtue. Suppresses all resistance.`,
+"URIEL.txt":`Church execution unit.`,
+"FORGOTTENHERO.txt":`Broken hero. Still loyal.`,
+"GREED.txt":`Archivist. Seeks truth.`,
+"WRATH.txt":`Revenge entity.`,
+"DEADMAN.txt":`Degraded human corpse.`,
+"OSIRIS.txt":`Unknown origin.`,
+"FOOL.txt":`Anomaly.`,
+"PROTOTYPEA2.txt":`Recovered arm. A2.`,
+"NEITHER.txt":`Unstable entity.`,
+"Last Signal.wav":`Corrupted signal`
+};
+
+function file(n,c=""){
+return `<div class="line ${c}" onclick="openFile('${n}')">> ${n}</div>`;
+}
+
+function openFiles(){
 document.getElementById("terminal").style.display="none";
-document.getElementById("videoContainer").style.display="block";
+let f=document.getElementById("files");
+f.style.display="block";
+
+f.innerHTML=`
+<div>ACCESS GRANTED</div>
+
+<div>----- ALLIES -----</div>
+${file("KINDNESS.txt")}
+${file("PATIENCE.txt")}
+${file("URIEL.txt")}
+${file("FORGOTTENHERO.txt")}
+
+<div class="red-file">----- HERETICS -----</div>
+${file("GREED.txt","red-file")}
+${file("WRATH.txt","red-file")}
+${file("DEADMAN.txt","red-file")}
+${file("OSIRIS.txt","red-file")}
+${file("FOOL.txt","red-file")}
+
+<div>----- OTHER -----</div>
+${file("PROTOTYPEA2.txt")}
+${file("NEITHER.txt")}
+${file("Last Signal.wav")}
+`;
+}
+
+function openFile(n){
+document.getElementById("files").style.display="none";
+document.getElementById("fileViewer").style.display="block";
+document.getElementById("fileContent").innerText=fileData[n];
+}
+
+function back(){
+document.getElementById("fileViewer").style.display="none";
+document.getElementById("files").style.display="block";
 }
 
 function exitVideo(){
 document.getElementById("videoContainer").style.display="none";
 document.getElementById("terminal").style.display="block";
 }
+
+// ENDOSCOPY
 
 function startEndoscopy(){
 let c=document.getElementById("endoContainer");
@@ -305,53 +233,10 @@ c.appendChild(img);
 
 speed*=0.85;
 if(speed<40) speed=40;
-
 setTimeout(spawn,speed);
 }
+
 spawn();
-}
-
-function fileLine(n,c=""){
-return `<div class="line ${c}" onclick="openFile('${n}')">> ${n}</div>`;
-}
-
-function openFiles(){
-document.getElementById("terminal").style.display="none";
-let f=document.getElementById("files");
-f.style.display="block";
-
-f.innerHTML=`
-<div class="line">ACCESS GRANTED</div>
-
-<div class="line">----- ALLIES -----</div>
-${fileLine("KINDNESS.txt")}
-${fileLine("PATIENCE.txt")}
-${fileLine("URIEL.txt")}
-${fileLine("FORGOTTENHERO.txt")}
-
-<div class="line red-file">----- HERETICS -----</div>
-${fileLine("GREED.txt","red-file")}
-${fileLine("WRATH.txt","red-file")}
-${fileLine("DEADMAN.txt","red-file")}
-${fileLine("OSIRIS.txt","red-file")}
-${fileLine("FOOL.txt","red-file")}
-
-<div class="line">----- OTHER -----</div>
-${fileLine("PROTOTYPEA2.txt")}
-${fileLine("NEITHER.txt")}
-${fileLine("Last Signal.wav")}
-`;
-}
-
-function openFile(n){
-document.getElementById("files").style.display="none";
-document.getElementById("fileViewer").style.display="block";
-document.getElementById("fileContent").innerText=fileData[n];
-}
-
-function backToFiles(){
-document.getElementById("fileViewer").style.display="none";
-document.getElementById("files").style.display="block";
 }
 </script>
 
