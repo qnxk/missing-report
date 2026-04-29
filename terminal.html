@@ -96,6 +96,12 @@ input {
     object-fit: cover;
 }
 
+video::-webkit-media-controls { display: none !important; }
+video::-webkit-media-controls-panel { display: none !important; }
+video::-webkit-media-controls-play-button { display: none !important; }
+video::-webkit-media-controls-volume-slider { display: none !important; }
+video::-webkit-media-controls-timeline { display: none !important; }
+
 .red-file { color:#ff0000; }
 .uncertain-file { color:#d6a0a0; }
 
@@ -187,7 +193,7 @@ const container = document.getElementById("videoContainer");
 terminal.style.display="none";
 container.style.display="block";
 
-container.innerHTML = `<video id="vid" src="VISUALRECORD.mp4" autoplay></video>`;
+container.innerHTML = `<video id="vid" src="VISUALRECORD.mp4" autoplay muted playsinline></video>`;
 
 const vid = document.getElementById("vid");
 
