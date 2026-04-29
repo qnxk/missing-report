@@ -90,6 +90,7 @@ input {
     background: black;
 }
 
+#videoContainer video,
 #videoContainer img {
     width: 100%;
     height: 100%;
@@ -163,187 +164,6 @@ input {
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
-const fileData = {
-"KINDNESS.txt": `ID: V-02
-Affiliation: Virtues
-Status: Active
-
-Summary:
-Outward benevolence. Private large-scale data suppression.
-
-Observations:
-- Authorised destruction of historical archives.
-- Restriction of access to: "Collective Unconscious."
-
-Note:
-Role conflicts with data erasure.`,
-
-"PATIENCE.txt": `ID: V-03
-Affiliation: Virtues
-Status: Active
-
-Summary:
-Order maintained through brutal suppression. Detected increased instability in nature.
-
-Observations:
-- Largescale suppression documented as 'Retribution.'
-- Able to regenerate after fatal damage.
-- Rising aggression detected.
-
-Note:
-Behaviour contrasts with designation.`,
-
-"URIEL.txt": `ID: C-01
-Affiliation: Church
-Status: Active
-
-Summary:
-Devotion enforced through fear and display of power.
-
-Observations:
-- Publicly displays destructive force.
-- Immediate, brutal execution of heretics & infernals.
-- Strong moral alignment with the Church.
-
-Note:
-Action correlation with civil unrest.`,
-
-"FORGOTTENHERO.txt": `ID: E-00
-Affiliation: Church
-Status: Active
-
-Summary:
-Remnant of a former Hero. Fragmented memory - incapable of defection.
-
-Observations:
-- Unwavering loyalty to V-02.
-- Developing realisation of irregularities.
-- Preservation of emotional stability.
-- Individual occasionally talks to themselves - topics of unknown origin. Conclusion: Fragmented memories
-
-Note:
-Remains loyal despite awareness of anomalies.`,
-
-"GREED.txt": `ID: S-01
-Affiliation: Heretics
-Status: Active
-
-Summary:
-Devoted archivist. Knowledgeable on the bygone Era of Chaos.
-
-Observations:
-- Collection of records dating Era of Chaos.
-- Archive destroyed under Kindness' orders.
-- Witnessed growing resentment towards Virtues.
-
-Note:
-Motivated by the recovery of information.`,
-
-"WRATH.txt": `ID: S-02
-Affiliation: Heretics
-Status: Unknown
-
-Summary:
-Driven by a sense of revenge. Alleged destruction of homeland by V-03.
-
-Observations:
-- Strong resentment towards V-03. Bloodlust of unrecordable calibre.
-- Highest number of recorded kills from any known Heretic.
-- Permanent Termination: Unknown - Individual engaged V-03. No further record.
-
-Note:
-NIL`,
-
-"DEADMAN.txt": `ID: H-03
-Affiliation: Heretics - DEFECT
-Status: Alive(?) - Conflict
-
-Summary:
-Formerly human. Physical and cognitive degradation. Subject appears to resemble a corpse.
-
-Observations:
-- Verbal communication rendered limited.
-- Recognised by certain members of the Church.
-- Bodily Composition: Semi Non-human.
-
-Note:
-Likely has lingering fragments of hippocampus function. Further studies needed.`,
-
-"OSIRIS.txt": `ID: D-00
-Affiliation: Unknown
-Status: Active
-
-Summary:
-Entity of unknown origin. Hypothesis: Artificial Construct
-
-Observations:
-- Limited communication. Minimal interaction.
-- Creator unknown.
-- Containment status in-progress.
-
-Note:
-Origin may be expunged.`,
-
-"FOOL.txt": `ID: ⛶-⛶⛶
-Affiliation: Unknown
-Status: Anomaly
-
-Summary:
-Familiar with Era of Chaos. Possible reminiscence.
-
-Observations:
-IN-PROGRESS
-
-Note:
-Subject harbours hostility towards A1.sys
-Proceed with caution. Initiate any necessary protocols. Target must be neutralised.
-Threat level: Unknown`,
-
-"PROTOTYPEA2.txt": `ID: X-00
-Affiliation: Unknown
-Status: Recovered Fragment
-
-Summary:
-Incomplete construct. Partial recovery successful. Hypothesis: Annihilation
-
-Observations:
-- Recovered severed arm.
-- Arm labelled: A2
-- Displays pseudo-awareness with missing central cortex.
-
-Note:
-Contains combat repository disc. Risk assessment of download: In-Progress`,
-
-"NEITHER.txt": `ID: X-01
-Affiliation: Uncertain
-Status: Under Observation
-
-Summary:
-Increasing self-doubt in relation to origins and role.
-
-Observations:
-- Harbouring developing resentment.
-- Repeated referencing of a 'failed awakening.'
-- Increasing instability.
-
-Note:
-No confirmed betrayal. Ongoing observation.`,
-
-"Last Signal.wav": `ID: U-01
-Affiliation: Unknown
-Status: Corrupted
-
-Summary:
-Unrecoverable audio transmission.
-
-Observations:
-- Fragmented static, breathing and signal spikes.
-- Unidentifiable source. Failed to trace creator. Decoding failed.
-
-Note:
-Playback not advised.`
-};
-
 function line(t,c=""){
 let d=document.createElement("div");
 d.className="line "+c;
@@ -356,13 +176,27 @@ function delayedLine(t,time,c=""){
 setTimeout(()=>line(t,c),time);
 }
 
-line("ENTER CODE:");
+// 🔹 ИЗМЕНЕНО
+line("ENTER COMMAND:");
 
 input.addEventListener("keydown",e=>{
 if(e.key==="Enter"){
 let v=input.value.toUpperCase().trim();
 input.value="";
 line("> "+v);
+
+// 🔹 VISUAL RECORD
+if(v==="VISUALRECORD"){
+document.getElementById("terminal").style.display="none";
+document.getElementById("videoContainer").style.display="block";
+
+const container = document.getElementById("videoContainer");
+container.innerHTML = `
+<button onclick="exitVideo()">EXIT</button>
+<video src="VISUALRECORD.mp4" autoplay></video>
+`;
+return;
+}
 
 if(v==="ARCHIVE"){openFiles();return;}
 
@@ -477,6 +311,11 @@ document.getElementById("files").style.display="block";
 function exitVideo(){
 document.getElementById("videoContainer").style.display="none";
 document.getElementById("terminal").style.display="block";
+
+document.getElementById("videoContainer").innerHTML = `
+<button onclick="exitVideo()">EXIT</button>
+<img id="simVideo" src="Sim_01.gif">
+`;
 }
 
 function startEndoscopy(){
@@ -495,7 +334,6 @@ speed*=0.85;
 if(speed<40) speed=40;
 setTimeout(spawn,speed);
 }
-
 spawn();
 }
 </script>
