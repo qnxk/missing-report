@@ -32,7 +32,6 @@ body::after {
 
 #terminal {
     padding: 20px;
-    position: relative;
 }
 
 .line {
@@ -72,9 +71,9 @@ input {
     background: black;
     border: none;
     color: white;
-    font-family: inherit;
-    outline: none;
     width: 100%;
+    outline: none;
+    font-family: inherit;
 }
 
 #files, #fileViewer {
@@ -88,10 +87,10 @@ input {
     position: fixed;
     inset: 0;
     background: black;
+    z-index: 9999;
 }
 
-#videoContainer video,
-#videoContainer img {
+#videoContainer video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -153,10 +152,7 @@ input {
     <div id="fileContent"></div>
 </div>
 
-<div id="videoContainer">
-    <button onclick="exitVideo()">EXIT</button>
-    <img id="simVideo" src="Sim_01.gif">
-</div>
+<div id="videoContainer"></div>
 
 <div id="endoContainer"></div>
 
@@ -176,7 +172,6 @@ function delayedLine(t,time,c=""){
 setTimeout(()=>line(t,c),time);
 }
 
-// 🔹 ИЗМЕНЕНО
 line("ENTER COMMAND:");
 
 input.addEventListener("keydown",e=>{
@@ -185,26 +180,28 @@ let v=input.value.toUpperCase().trim();
 input.value="";
 line("> "+v);
 
-// 🔹 VISUAL RECORD
 if(v==="VISUALRECORD"){
-document.getElementById("terminal").style.display="none";
-document.getElementById("videoContainer").style.display="block";
-
+const terminal = document.getElementById("terminal");
 const container = document.getElementById("videoContainer");
-container.innerHTML = `
-<button onclick="exitVideo()">EXIT</button>
-<video src="VISUALRECORD.mp4" autoplay></video>
-`;
+
+terminal.style.display="none";
+container.style.display="block";
+
+container.innerHTML = `<video id="vid" src="VISUALRECORD.mp4" autoplay></video>`;
+
+const vid = document.getElementById("vid");
+
+if (vid.requestFullscreen) vid.requestFullscreen();
+
+vid.onended = () => {
+container.innerHTML = "";
+container.style.background = "black";
+};
+
 return;
 }
 
 if(v==="ARCHIVE"){openFiles();return;}
-
-if(v===atob("QUJB")){
-document.getElementById("terminal").style.display="none";
-document.getElementById("videoContainer").style.display="block";
-return;
-}
 
 if(v==="COMMANDER"){
 delayedLine("Authority Signature Detected.",300);
@@ -275,21 +272,21 @@ let f=document.getElementById("files");
 f.style.display="block";
 
 f.innerHTML=`
-<div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+<div class="line">ACCESS GRANTED</div>
 
-<div class="line" data-text="----- ALLIES -----">----- ALLIES -----</div>
+<div class="line">----- ALLIES -----</div>
 ${file("KINDNESS.txt")}
 ${file("PATIENCE.txt")}
 ${file("URIEL.txt")}
 ${file("FORGOTTENHERO.txt")}
 
-<div class="line red-file" data-text="----- HERETICS -----">----- HERETICS -----</div>
+<div class="line red-file">----- HERETICS -----</div>
 ${file("GREED.txt","red-file")}
 ${file("WRATH.txt","red-file")}
 ${file("DEADMAN.txt","red-file")}
 ${file("OSIRIS.txt","red-file")}
 
-<div class="line" data-text="----- OTHER -----">----- OTHER -----</div>
+<div class="line">----- OTHER -----</div>
 ${file("PROTOTYPEA2.txt")}
 ${file("FOOL.txt","uncertain-file")}
 ${file("NEITHER.txt","uncertain-file")}
@@ -300,22 +297,12 @@ ${file("Last Signal.wav")}
 function openFile(n){
 document.getElementById("files").style.display="none";
 document.getElementById("fileViewer").style.display="block";
-document.getElementById("fileContent").innerText=fileData[n];
+document.getElementById("fileContent").innerText="...";
 }
 
 function back(){
 document.getElementById("fileViewer").style.display="none";
 document.getElementById("files").style.display="block";
-}
-
-function exitVideo(){
-document.getElementById("videoContainer").style.display="none";
-document.getElementById("terminal").style.display="block";
-
-document.getElementById("videoContainer").innerHTML = `
-<button onclick="exitVideo()">EXIT</button>
-<img id="simVideo" src="Sim_01.gif">
-`;
 }
 
 function startEndoscopy(){
@@ -334,6 +321,7 @@ speed*=0.85;
 if(speed<40) speed=40;
 setTimeout(spawn,speed);
 }
+
 spawn();
 }
 </script>
