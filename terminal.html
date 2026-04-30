@@ -32,6 +32,7 @@ body::after {
 
 #terminal {
     padding: 20px;
+    position: relative;
 }
 
 .line {
@@ -49,6 +50,7 @@ body::after {
     left: 0;
     top: 0;
     pointer-events: none;
+    white-space: pre-wrap;
 }
 
 .line::before {
@@ -71,9 +73,10 @@ input {
     background: black;
     border: none;
     color: white;
-    width: 100%;
-    outline: none;
     font-family: inherit;
+    outline: none;
+    width: 100%;
+    font-size: 18px;
 }
 
 #files, #fileViewer {
@@ -90,28 +93,48 @@ input {
     z-index: 9999;
 }
 
-#videoContainer video {
+#videoContainer video,
+#videoContainer img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-video::-webkit-media-controls { display: none !important; }
-video::-webkit-media-controls-panel { display: none !important; }
-video::-webkit-media-controls-play-button { display: none !important; }
-video::-webkit-media-controls-volume-slider { display: none !important; }
-video::-webkit-media-controls-timeline { display: none !important; }
+video::-webkit-media-controls {
+    display: none !important;
+}
 
-.red-file { color:#ff0000; }
-.uncertain-file { color:#d6a0a0; }
+video::-webkit-media-controls-panel {
+    display: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+    display: none !important;
+}
+
+video::-webkit-media-controls-volume-slider {
+    display: none !important;
+}
+
+video::-webkit-media-controls-timeline {
+    display: none !important;
+}
+
+.red-file {
+    color: #ff0000;
+}
+
+.uncertain-file {
+    color: #d6a0a0;
+}
 
 .glitch {
-    color:#ff4444;
+    color: #ff4444;
     animation: glitch 0.1s infinite;
 }
 
 .dim {
-    color:#b8b8b8;
+    color: #b8b8b8;
 }
 
 @keyframes glitch {
@@ -166,16 +189,197 @@ video::-webkit-media-controls-timeline { display: none !important; }
 const output = document.getElementById("output");
 const input = document.getElementById("input");
 
+const fileData = {
+"KINDNESS.txt": `ID: V-02
+Affiliation: Virtues
+Status: Active
+
+Summary:
+Outward benevolence. Private large-scale data suppression.
+
+Observations:
+- Authorised destruction of historical archives.
+- Restriction of access to: "Collective Unconscious."
+
+Note:
+Role conflicts with data erasure.`,
+
+"PATIENCE.txt": `ID: V-03
+Affiliation: Virtues
+Status: Active
+
+Summary:
+Order maintained through brutal suppression. Detected increased instability in nature.
+
+Observations:
+- Largescale suppression documented as 'Retribution.'
+- Able to regenerate after fatal damage.
+- Rising aggression detected.
+
+Note:
+Behaviour contrasts with designation.`,
+
+"URIEL.txt": `ID: C-01
+Affiliation: Church
+Status: Active
+
+Summary:
+Devotion enforced through fear and display of power.
+
+Observations:
+- Publicly displays destructive force.
+- Immediate, brutal execution of heretics & infernals.
+- Strong moral alignment with the Church.
+
+Note:
+Action correlation with civil unrest.`,
+
+"FORGOTTENHERO.txt": `ID: E-00
+Affiliation: Church
+Status: Active
+
+Summary:
+Remnant of a former Hero. Fragmented memory - incapable of defection.
+
+Observations:
+- Unwavering loyalty to V-02.
+- Developing realisation of irregularities.
+- Preservation of emotional stability.
+- Individual occasionally talks to themselves - topics of unknown origin. Conclusion: Fragmented memories
+
+Note:
+Remains loyal despite awareness of anomalies.`,
+
+"GREED.txt": `ID: S-01
+Affiliation: Heretics
+Status: Active
+
+Summary:
+Devoted archivist. Knowledgeable on the bygone Era of Chaos.
+
+Observations:
+- Collection of records dating PRE-Era of Peace.
+- Archive destroyed under Kindness' orders.
+- Witnessed growing resentment towards Virtues.
+
+Note:
+Motivated by the recovery of information.`,
+
+"WRATH.txt": `ID: S-02
+Affiliation: Heretics
+Status: Unknown
+
+Summary:
+Driven by a sense of revenge. Alleged destruction of homeland by V-03.
+
+Observations:
+- Strong resentment towards V-03. Bloodlust of unrecordable calibre.
+- Highest number of recorded kills from any known Heretic.
+- Permanent Termination: Unknown - Individual engaged V-03. No further record.
+
+Note:
+NIL`,
+
+"DEADMAN.txt": `ID: H-03
+Affiliation: Heretics - DEFECT
+Status: Alive(?) - Conflict
+
+Summary:
+Formerly human. Physical and cognitive degradation. Subject appears to resemble a corpse.
+
+Observations:
+- Verbal communication rendered limited.
+- Recognised by certain members of the Church.
+- Bodily Composition: Semi Non-human.
+
+Note:
+Likely has lingering fragments of hippocampus function. Further studies needed.`,
+
+"OSIRIS.txt": `ID: D-00
+Affiliation: Unknown
+Status: Active
+
+Summary:
+Entity of unknown origin. Hypothesis: Artificial Construct
+
+Observations:
+- Limited communication. Minimal interaction.
+- Creator unknown.
+- Containment status in-progress.
+
+Note:
+Origin may be expunged.`,
+
+"FOOL.txt": `ID: ⛶-⛶⛶
+Affiliation: Unknown
+Status: Anomaly
+
+Summary:
+Familiar with Era of Chaos. Possible reminiscence.
+
+Observations:
+IN-PROGRESS
+
+Note:
+Subject harbours hostility towards A1.sys
+Proceed with caution. Initiate any necessary protocols. Target must be neutralised.
+Threat level: Unknown`,
+
+"PROTOTYPEA2.txt": `ID: X-00
+Affiliation: Unknown
+Status: Recovered Fragment
+
+Summary:
+Incomplete construct. Partial recovery successful. Hypothesis: Annihilation
+
+Observations:
+- Recovered severed arm.
+- Arm labelled: A2
+- Displays pseudo-awareness with missing central cortex.
+
+Note:
+Contains combat repository disc. Risk assessment of download: In-Progress`,
+
+"NEITHER.txt": `ID: X-01
+Affiliation: Uncertain
+Status: Under Observation
+
+Summary:
+Increasing self-doubt in relation to origins and role.
+
+Observations:
+- Harbouring developing resentment.
+- Repeated referencing of a 'failed awakening.'
+- Increasing instability.
+
+Note:
+No confirmed betrayal. Ongoing observation.`,
+
+"Last Signal.wav": `ID: U-01
+Affiliation: Unknown
+Status: Corrupted
+
+Summary:
+Unrecoverable audio transmission.
+
+Observations:
+- Fragmented static, breathing and signal spikes.
+- Unidentifiable source. Failed to trace creator. Decoding failed.
+
+Note:
+Playback not advised.`
+};
+
 function line(t,c=""){
-let d=document.createElement("div");
-d.className="line "+c;
-d.textContent=t;
-d.setAttribute("data-text",t);
-output.appendChild(d);
+    let d=document.createElement("div");
+    d.className="line "+c;
+    d.textContent=t;
+    d.setAttribute("data-text",t);
+    output.appendChild(d);
 }
 
 function delayedLine(t,time,c=""){
-setTimeout(()=>line(t,c),time);
+    setTimeout(()=>line(t,c),time);
 }
 
 line("ENTER COMMAND:");
@@ -188,16 +392,22 @@ line("> "+v);
 
 if(v==="VISUALRECORD"){
 const terminal = document.getElementById("terminal");
+const files = document.getElementById("files");
+const fileViewer = document.getElementById("fileViewer");
 const container = document.getElementById("videoContainer");
 
 terminal.style.display="none";
+files.style.display="none";
+fileViewer.style.display="none";
 container.style.display="block";
 
 container.innerHTML = `<video id="vid" src="VISUALRECORD.mp4" autoplay playsinline></video>`;
 
 const vid = document.getElementById("vid");
 
-if (vid.requestFullscreen) vid.requestFullscreen();
+if (container.requestFullscreen) container.requestFullscreen();
+
+vid.play();
 
 vid.onended = () => {
 container.innerHTML = "";
@@ -208,6 +418,24 @@ return;
 }
 
 if(v==="ARCHIVE"){openFiles();return;}
+
+if(v===atob("QUJB")){
+const terminal = document.getElementById("terminal");
+const files = document.getElementById("files");
+const fileViewer = document.getElementById("fileViewer");
+const container = document.getElementById("videoContainer");
+
+terminal.style.display="none";
+files.style.display="none";
+fileViewer.style.display="none";
+container.style.display="block";
+
+container.innerHTML = `<img src="Sim_01.gif?t=${Date.now()}">`;
+
+if (container.requestFullscreen) container.requestFullscreen();
+
+return;
+}
 
 if(v==="COMMANDER"){
 delayedLine("Authority Signature Detected.",300);
@@ -269,30 +497,32 @@ line("ACCESS DENIED");
 });
 
 function file(n,c=""){
-return `<div class="line ${c}" onclick="openFile('${n}')" data-text="> ${n}">> ${n}</div>`;
+    return `<div class="line ${c}" onclick="openFile('${n}')" data-text="> ${n}">> ${n}</div>`;
 }
 
 function openFiles(){
 document.getElementById("terminal").style.display="none";
+document.getElementById("fileViewer").style.display="none";
+
 let f=document.getElementById("files");
 f.style.display="block";
 
 f.innerHTML=`
-<div class="line">ACCESS GRANTED</div>
+<div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
 
-<div class="line">----- ALLIES -----</div>
+<div class="line" data-text="----- ALLIES -----">----- ALLIES -----</div>
 ${file("KINDNESS.txt")}
 ${file("PATIENCE.txt")}
 ${file("URIEL.txt")}
 ${file("FORGOTTENHERO.txt")}
 
-<div class="line red-file">----- HERETICS -----</div>
+<div class="line red-file" data-text="----- HERETICS -----">----- HERETICS -----</div>
 ${file("GREED.txt","red-file")}
 ${file("WRATH.txt","red-file")}
 ${file("DEADMAN.txt","red-file")}
 ${file("OSIRIS.txt","red-file")}
 
-<div class="line">----- OTHER -----</div>
+<div class="line" data-text="----- OTHER -----">----- OTHER -----</div>
 ${file("PROTOTYPEA2.txt")}
 ${file("FOOL.txt","uncertain-file")}
 ${file("NEITHER.txt","uncertain-file")}
@@ -303,7 +533,19 @@ ${file("Last Signal.wav")}
 function openFile(n){
 document.getElementById("files").style.display="none";
 document.getElementById("fileViewer").style.display="block";
-document.getElementById("fileContent").innerText="...";
+
+const content = fileData[n] || "EMPTY FILE";
+const container = document.getElementById("fileContent");
+
+container.innerHTML = "";
+
+content.split("\n").forEach(lineText => {
+    const div = document.createElement("div");
+    div.className = "line";
+    div.textContent = lineText;
+    div.setAttribute("data-text", lineText);
+    container.appendChild(div);
+});
 }
 
 function back(){
