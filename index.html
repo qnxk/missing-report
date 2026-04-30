@@ -50,6 +50,7 @@ body::after {
     left: 0;
     top: 0;
     pointer-events: none;
+    white-space: pre-wrap;
 }
 
 .line::before {
@@ -75,6 +76,7 @@ input {
     font-family: inherit;
     outline: none;
     width: 100%;
+    font-size: 18px;
 }
 
 #files, #fileViewer {
@@ -91,7 +93,8 @@ input {
     z-index: 9999;
 }
 
-#videoContainer video {
+#videoContainer video,
+#videoContainer img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -221,7 +224,7 @@ Affiliation: Church
 Status: Active
 
 Summary:
-Devotion enforced through fear and display of power. 
+Devotion enforced through fear and display of power.
 
 Observations:
 - Publicly displays destructive force.
@@ -236,7 +239,7 @@ Affiliation: Church
 Status: Active
 
 Summary:
-Remnant of a former Hero. Fragmented memory - incapable of defection. 
+Remnant of a former Hero. Fragmented memory - incapable of defection.
 
 Observations:
 - Unwavering loyalty to V-02.
@@ -251,11 +254,11 @@ Remains loyal despite awareness of anomalies.`,
 Affiliation: Heretics
 Status: Active
 
-Summary: 
+Summary:
 Devoted archivist. Knowledgeable on the bygone Era of Chaos.
 
 Observations:
-- Collection of records dating pre-Era of Peace.
+- Collection of records dating PRE-Era of Peace.
 - Archive destroyed under Kindness' orders.
 - Witnessed growing resentment towards Virtues.
 
@@ -266,11 +269,11 @@ Motivated by the recovery of information.`,
 Affiliation: Heretics
 Status: Unknown
 
-Summary: 
+Summary:
 Driven by a sense of revenge. Alleged destruction of homeland by V-03.
 
 Observations:
-- Strong resentment towards V-03. Bloodlust of unrecordable calibre. 
+- Strong resentment towards V-03. Bloodlust of unrecordable calibre.
 - Highest number of recorded kills from any known Heretic.
 - Permanent Termination: Unknown - Individual engaged V-03. No further record.
 
@@ -312,14 +315,14 @@ Affiliation: Unknown
 Status: Anomaly
 
 Summary:
-Familiar with Era of Chaos. Possible reminiscence. 
+Familiar with Era of Chaos. Possible reminiscence.
 
 Observations:
 IN-PROGRESS
 
 Note:
-Subject harbours hostility towards A1.sys 
-Proceed with caution. Initiate any necessary protocols. Target must be neutralised. 
+Subject harbours hostility towards A1.sys
+Proceed with caution. Initiate any necessary protocols. Target must be neutralised.
 Threat level: Unknown`,
 
 "PROTOTYPEA2.txt": `ID: X-00
@@ -416,6 +419,24 @@ return;
 
 if(v==="ARCHIVE"){openFiles();return;}
 
+if(v===atob("QUJB")){
+const terminal = document.getElementById("terminal");
+const files = document.getElementById("files");
+const fileViewer = document.getElementById("fileViewer");
+const container = document.getElementById("videoContainer");
+
+terminal.style.display="none";
+files.style.display="none";
+fileViewer.style.display="none";
+container.style.display="block";
+
+container.innerHTML = `<img src="Sim_01.gif?t=${Date.now()}">`;
+
+if (container.requestFullscreen) container.requestFullscreen();
+
+return;
+}
+
 if(v==="COMMANDER"){
 delayedLine("Authority Signature Detected.",300);
 delayedLine("Identity: The Supreme Commander.",800);
@@ -476,11 +497,13 @@ line("ACCESS DENIED");
 });
 
 function file(n,c=""){
-return `<div class="line ${c}" onclick="openFile('${n}')" data-text="> ${n}">> ${n}</div>`;
+    return `<div class="line ${c}" onclick="openFile('${n}')" data-text="> ${n}">> ${n}</div>`;
 }
 
 function openFiles(){
 document.getElementById("terminal").style.display="none";
+document.getElementById("fileViewer").style.display="none";
+
 let f=document.getElementById("files");
 f.style.display="block";
 
@@ -513,6 +536,7 @@ document.getElementById("fileViewer").style.display="block";
 
 const content = fileData[n] || "EMPTY FILE";
 const container = document.getElementById("fileContent");
+
 container.innerHTML = "";
 
 content.split("\n").forEach(lineText => {
