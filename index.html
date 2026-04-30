@@ -2,201 +2,553 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ACTIVE WARRANT NOTICE</title>
+<title>system</title>
 
 <style>
-    body {
-        margin: 0;
-        background: #e6e6e6;
-        font-family: Arial, sans-serif;
-        color: #111;
-    }
+@font-face {
+    font-family: 'VCR';
+    src: url('VCR_OSD_MONO.ttf');
+}
 
-    .container {
-        max-width: 750px;
-        margin: 40px auto;
-        background: white;
-        padding: 30px;
-        border: 2px solid #000;
-        box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    }
+body {
+    margin: 0;
+    background: black;
+    font-family: 'VCR', monospace;
+    overflow: hidden;
+}
 
-    .header {
-        text-align: center;
-        border-bottom: 4px solid black;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.08) 2px,
+        rgba(0,0,0,0) 4px
+    );
+    pointer-events: none;
+}
 
-    .header h1 {
-        margin: 0;
-        font-size: 42px;
-        letter-spacing: 4px;
-    }
+#terminal {
+    padding: 20px;
+    position: relative;
+}
 
-    .subheader {
-        text-align: center;
-        font-size: 18px;
-        margin-top: 5px;
-        color: #444;
-    }
+.line {
+    position: relative;
+    color: white;
+    font-size: 18px;
+    white-space: pre-wrap;
+    cursor: pointer;
+}
 
-    .photo {
-        text-align: center;
-        margin: 20px 0;
-    }
+.line::before,
+.line::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
 
-    .photo img {
-        max-width: 100%;
-        border: 2px solid black;
-        margin-bottom: 15px;
-    }
+.line::before {
+    color: red;
+    opacity: 0.3;
+    transform: translate(2px, 0);
+}
 
-    .views {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 10px;
-        flex-wrap: wrap;
-    }
+.line::after {
+    color: cyan;
+    opacity: 0.3;
+    transform: translate(-2px, 0);
+}
 
-    .views img {
-        width: 45%;
-        border: 2px solid black;
-    }
+.input-line {
+    display: flex;
+}
 
-    .info {
-        margin-top: 20px;
-        font-size: 18px;
-        line-height: 1.6;
-    }
+input {
+    background: black;
+    border: none;
+    color: white;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+}
 
-    .info strong {
-        display: inline-block;
-        width: 160px;
-    }
+#files, #fileViewer {
+    display: none;
+    padding: 20px;
+    color: white;
+}
 
-    .charges {
-        margin-top: 25px;
-        padding: 15px;
-        border: 2px dashed black;
-        background: #f5f5f5;
-        font-size: 16px;
-    }
+#videoContainer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 9999;
+}
 
-    .warning {
-        margin-top: 25px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 20px;
-        letter-spacing: 2px;
-    }
+#videoContainer video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .qr-section {
-        margin-top: 30px;
-        text-align: center;
-    }
+video::-webkit-media-controls {
+    display: none !important;
+}
 
-    .qr-section p {
-        font-weight: bold;
-        letter-spacing: 2px;
-        margin-bottom: 10px;
-    }
+video::-webkit-media-controls-panel {
+    display: none !important;
+}
 
-    .qr-section img {
-        width: 140px;
-        border: 2px solid black;
-        padding: 5px;
-        background: white;
-    }
+video::-webkit-media-controls-play-button {
+    display: none !important;
+}
 
-    .footer {
-        margin-top: 30px;
-        font-size: 14px;
-        color: #333;
-        border-top: 1px solid #999;
-        padding-top: 15px;
-    }
+video::-webkit-media-controls-volume-slider {
+    display: none !important;
+}
 
-    /* КНОПКА */
-    .access-btn {
-        margin-top: 30px;
-        text-align: center;
-    }
+video::-webkit-media-controls-timeline {
+    display: none !important;
+}
 
-    .access-btn button {
-        padding: 15px 30px;
-        font-size: 18px;
-        background: black;
-        color: white;
-        border: none;
-        cursor: pointer;
-        letter-spacing: 2px;
-    }
+.red-file {
+    color: #ff0000;
+}
 
-    .access-btn button:hover {
-        background: #222;
-    }
+.uncertain-file {
+    color: #d6a0a0;
+}
+
+.glitch {
+    color: #ff4444;
+    animation: glitch 0.1s infinite;
+}
+
+.dim {
+    color: #b8b8b8;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    50% { transform: translate(2px,-1px); }
+    100% { transform: translate(-2px,1px); }
+}
+
+#endoContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.endo-img {
+    position: absolute;
+    width: 180px;
+    animation: shake 0.08s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(0); }
+    50% { transform: translate(4px,-3px); }
+    100% { transform: translate(-4px,3px); }
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>WANTED</h1>
-        <div class="subheader">ACTIVE WARRANT NOTICE</div>
-    </div>
+<div id="terminal">
+    <div id="output"></div>
 
-    <div class="photo">
-        <img src="poster.png" alt="Suspect Poster">
-    </div>
-
-    <div class="views">
-        <img src="front view.jpg" alt="Front View">
-        <img src="side view.jpg" alt="Side View">
-    </div>
-
-    <div class="info">
-        <p><strong>Name:</strong> ███████████</p>
-        <p><strong>Status:</strong> At large</p>
-        <p><strong>Last seen:</strong> 04/25 near ████████</p>
-        <p><strong>Case ID:</strong> BV-17-04</p>
-    </div>
-
-    <div class="charges">
-        <strong>Charges:</strong><br>
-        Violation of restricted protocols.<br>
-        Unauthorized access to classified systems.<br>
-        Tampering with sealed records.<br>
-        Homicide of multiple Celestial entities.<br>
-        Additional charges remain redacted.
-    </div>
-
-    <div class="warning">
-        DO NOT APPROACH. SUBJECT IS NO LONGER CONTROLLABLE
-    </div>
-
-    <div class="qr-section">
-        <p>MORE INFORMATION AT</p>
-        <!-- QR ведёт на terminal.html -->
-        <img src="REDACTED.png" alt="QR Code">
-    </div>
-
-    <!-- НОВАЯ КНОПКА -->
-    <div class="access-btn">
-        <button onclick="location.href='terminal.html'">
-            ACCESS ARCHIVE
-        </button>
-    </div>
-
-    <div class="footer">
-        If you have any information regarding this individual,
-        contact your local authorities immediately.<br><br>
-        This page is part of an active investigation.<br>
-        Unauthorized access may be logged.
+    <div class="input-line">
+        <span class="line" data-text="> ">> </span>
+        <input id="input" autofocus>
     </div>
 </div>
+
+<div id="files"></div>
+
+<div id="fileViewer">
+    <div class="line" onclick="back()" data-text="[BACK]">[BACK]</div>
+    <div id="fileContent"></div>
+</div>
+
+<div id="videoContainer"></div>
+
+<div id="endoContainer"></div>
+
+<script>
+const output = document.getElementById("output");
+const input = document.getElementById("input");
+
+const fileData = {
+"KINDNESS.txt": `ID: V-02
+Affiliation: Virtues
+Status: Active
+
+Summary:
+Outward benevolence. Private large-scale data suppression.
+
+Observations:
+- Authorised destruction of historical archives.
+- Restriction of access to: "Collective Unconscious."
+
+Note:
+Role conflicts with data erasure.`,
+
+"PATIENCE.txt": `ID: V-03
+Affiliation: Virtues
+Status: Active
+
+Summary:
+Order maintained through brutal suppression. Detected increased instability in nature.
+
+Observations:
+- Largescale suppression documented as 'Retribution.'
+- Able to regenerate after fatal damage.
+- Rising aggression detected.
+
+Note:
+Behaviour contrasts with designation.`,
+
+"URIEL.txt": `ID: C-01
+Affiliation: Church
+Status: Active
+
+Summary:
+Devotion enforced through fear and display of power. 
+
+Observations:
+- Publicly displays destructive force.
+- Immediate, brutal execution of heretics & infernals.
+- Strong moral alignment with the Church.
+
+Note:
+Action correlation with civil unrest.`,
+
+"FORGOTTENHERO.txt": `ID: E-00
+Affiliation: Church
+Status: Active
+
+Summary:
+Remnant of a former Hero. Fragmented memory - incapable of defection. 
+
+Observations:
+- Unwavering loyalty to V-02.
+- Developing realisation of irregularities.
+- Preservation of emotional stability.
+- Individual occasionally talks to themselves - topics of unknown origin. Conclusion: Fragmented memories
+
+Note:
+Remains loyal despite awareness of anomalies.`,
+
+"GREED.txt": `ID: S-01
+Affiliation: Heretics
+Status: Active
+
+Summary: 
+Devoted archivist. Knowledgeable on the bygone Era of Chaos.
+
+Observations:
+- Collection of records dating pre-Era of Peace.
+- Archive destroyed under Kindness' orders.
+- Witnessed growing resentment towards Virtues.
+
+Note:
+Motivated by the recovery of information.`,
+
+"WRATH.txt": `ID: S-02
+Affiliation: Heretics
+Status: Unknown
+
+Summary: 
+Driven by a sense of revenge. Alleged destruction of homeland by V-03.
+
+Observations:
+- Strong resentment towards V-03. Bloodlust of unrecordable calibre. 
+- Highest number of recorded kills from any known Heretic.
+- Permanent Termination: Unknown - Individual engaged V-03. No further record.
+
+Note:
+NIL`,
+
+"DEADMAN.txt": `ID: H-03
+Affiliation: Heretics - DEFECT
+Status: Alive(?) - Conflict
+
+Summary:
+Formerly human. Physical and cognitive degradation. Subject appears to resemble a corpse.
+
+Observations:
+- Verbal communication rendered limited.
+- Recognised by certain members of the Church.
+- Bodily Composition: Semi Non-human.
+
+Note:
+Likely has lingering fragments of hippocampus function. Further studies needed.`,
+
+"OSIRIS.txt": `ID: D-00
+Affiliation: Unknown
+Status: Active
+
+Summary:
+Entity of unknown origin. Hypothesis: Artificial Construct
+
+Observations:
+- Limited communication. Minimal interaction.
+- Creator unknown.
+- Containment status in-progress.
+
+Note:
+Origin may be expunged.`,
+
+"FOOL.txt": `ID: ⛶-⛶⛶
+Affiliation: Unknown
+Status: Anomaly
+
+Summary:
+Familiar with Era of Chaos. Possible reminiscence. 
+
+Observations:
+IN-PROGRESS
+
+Note:
+Subject harbours hostility towards A1.sys 
+Proceed with caution. Initiate any necessary protocols. Target must be neutralised. 
+Threat level: Unknown`,
+
+"PROTOTYPEA2.txt": `ID: X-00
+Affiliation: Unknown
+Status: Recovered Fragment
+
+Summary:
+Incomplete construct. Partial recovery successful. Hypothesis: Annihilation
+
+Observations:
+- Recovered severed arm.
+- Arm labelled: A2
+- Displays pseudo-awareness with missing central cortex.
+
+Note:
+Contains combat repository disc. Risk assessment of download: In-Progress`,
+
+"NEITHER.txt": `ID: X-01
+Affiliation: Uncertain
+Status: Under Observation
+
+Summary:
+Increasing self-doubt in relation to origins and role.
+
+Observations:
+- Harbouring developing resentment.
+- Repeated referencing of a 'failed awakening.'
+- Increasing instability.
+
+Note:
+No confirmed betrayal. Ongoing observation.`,
+
+"Last Signal.wav": `ID: U-01
+Affiliation: Unknown
+Status: Corrupted
+
+Summary:
+Unrecoverable audio transmission.
+
+Observations:
+- Fragmented static, breathing and signal spikes.
+- Unidentifiable source. Failed to trace creator. Decoding failed.
+
+Note:
+Playback not advised.`
+};
+
+function line(t,c=""){
+    let d=document.createElement("div");
+    d.className="line "+c;
+    d.textContent=t;
+    d.setAttribute("data-text",t);
+    output.appendChild(d);
+}
+
+function delayedLine(t,time,c=""){
+    setTimeout(()=>line(t,c),time);
+}
+
+line("ENTER COMMAND:");
+
+input.addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+let v=input.value.toUpperCase().trim();
+input.value="";
+line("> "+v);
+
+if(v==="VISUALRECORD"){
+const terminal = document.getElementById("terminal");
+const files = document.getElementById("files");
+const fileViewer = document.getElementById("fileViewer");
+const container = document.getElementById("videoContainer");
+
+terminal.style.display="none";
+files.style.display="none";
+fileViewer.style.display="none";
+container.style.display="block";
+
+container.innerHTML = `<video id="vid" src="VISUALRECORD.mp4" autoplay playsinline></video>`;
+
+const vid = document.getElementById("vid");
+
+if (container.requestFullscreen) container.requestFullscreen();
+
+vid.play();
+
+vid.onended = () => {
+container.innerHTML = "";
+container.style.background = "black";
+};
+
+return;
+}
+
+if(v==="ARCHIVE"){openFiles();return;}
+
+if(v==="COMMANDER"){
+delayedLine("Authority Signature Detected.",300);
+delayedLine("Identity: The Supreme Commander.",800);
+delayedLine("Command Chain: Confirmed.",1300);
+delayedLine("Operational Note: Heretic suppression authorised.",1900);
+delayedLine("System Note: Await further orders.",2600,"dim");
+return;
+}
+
+if(v==="THEFLAWEDVIRTUE"){
+delayedLine("Warning: Corruption Trace Found.",300,"glitch");
+delayedLine("Old Title Detected: NEITHER.",900,"uncertain-file");
+delayedLine("New Title Unstable: FLAWED VIRTUE.",1500,"uncertain-file");
+delayedLine('Recovered Query: "What was sealed from me?"',2300);
+delayedLine("Suspicion: Betrayal not confirmed.",3100,"dim");
+delayedLine("System Note: Continue observation.",3900,"dim");
+return;
+}
+
+if(v==="OSIRIS"){
+delayedLine("Entity File Partially Restored.",300);
+delayedLine("Name: OSIRIS.",800);
+delayedLine("Origin: Unknown.",1300);
+delayedLine("Hypothesis: Artificial Construct.",2100);
+delayedLine("Containment Status: In-Progress.",3000,"dim");
+delayedLine("System Note: Continue observation.",3900,"dim");
+return;
+}
+
+if(v==="GREED"){
+delayedLine("Archive Index Found.",300);
+delayedLine("Owner: GREED.",800);
+delayedLine("Contents: PRE-Era of Peace records.",1700);
+delayedLine("Archive Status: Destroyed.",2800,"glitch");
+delayedLine("Responsible Order: V-02.",3600);
+delayedLine("System Note: Truth preserved remains a weapon.",4600,"dim");
+return;
+}
+
+if(v==="WHITEDEATH"){
+delayedLine("Hostile Entity Detected.",200,"glitch");
+delayedLine("Designation: WHITE DEATH.",700,"glitch");
+delayedLine("Heretic Class: Confirmed.",1200,"glitch");
+delayedLine("Weapon Familiarity: Ancient rail systems.",1900,"dim");
+delayedLine("Recorded Intent: Eradication of abominations.",2600);
+delayedLine("Army Response Limiter: Failed.",3400,"glitch");
+delayedLine("New Directive Generated:",4200,"glitch");
+delayedLine("Find White Death.",5000,"glitch");
+delayedLine("Break White Death.",5700,"glitch");
+delayedLine("Return With Confirmation.",6400,"glitch");
+return;
+}
+
+if(v==="ENDOSCOPY"){startEndoscopy();return;}
+
+line("ACCESS DENIED");
+}
+});
+
+function file(n,c=""){
+return `<div class="line ${c}" onclick="openFile('${n}')" data-text="> ${n}">> ${n}</div>`;
+}
+
+function openFiles(){
+document.getElementById("terminal").style.display="none";
+let f=document.getElementById("files");
+f.style.display="block";
+
+f.innerHTML=`
+<div class="line" data-text="ACCESS GRANTED">ACCESS GRANTED</div>
+
+<div class="line" data-text="----- ALLIES -----">----- ALLIES -----</div>
+${file("KINDNESS.txt")}
+${file("PATIENCE.txt")}
+${file("URIEL.txt")}
+${file("FORGOTTENHERO.txt")}
+
+<div class="line red-file" data-text="----- HERETICS -----">----- HERETICS -----</div>
+${file("GREED.txt","red-file")}
+${file("WRATH.txt","red-file")}
+${file("DEADMAN.txt","red-file")}
+${file("OSIRIS.txt","red-file")}
+
+<div class="line" data-text="----- OTHER -----">----- OTHER -----</div>
+${file("PROTOTYPEA2.txt")}
+${file("FOOL.txt","uncertain-file")}
+${file("NEITHER.txt","uncertain-file")}
+${file("Last Signal.wav")}
+`;
+}
+
+function openFile(n){
+document.getElementById("files").style.display="none";
+document.getElementById("fileViewer").style.display="block";
+
+const content = fileData[n] || "EMPTY FILE";
+const container = document.getElementById("fileContent");
+container.innerHTML = "";
+
+content.split("\n").forEach(lineText => {
+    const div = document.createElement("div");
+    div.className = "line";
+    div.textContent = lineText;
+    div.setAttribute("data-text", lineText);
+    container.appendChild(div);
+});
+}
+
+function back(){
+document.getElementById("fileViewer").style.display="none";
+document.getElementById("files").style.display="block";
+}
+
+function startEndoscopy(){
+let c=document.getElementById("endoContainer");
+let speed=900;
+
+function spawn(){
+let img=document.createElement("img");
+img.src="m.png";
+img.className="endo-img";
+img.style.left=Math.random()*window.innerWidth+"px";
+img.style.top=Math.random()*window.innerHeight+"px";
+c.appendChild(img);
+
+speed*=0.85;
+if(speed<40) speed=40;
+setTimeout(spawn,speed);
+}
+
+spawn();
+}
+</script>
 
 </body>
 </html>
